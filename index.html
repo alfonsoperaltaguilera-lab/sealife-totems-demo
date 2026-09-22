@@ -338,6 +338,7 @@ body.solo .topbar{display:none}
     <button class="tb-btn" data-clk="+10">+10 min</button>
     <button class="tb-btn" data-clk="speed" id="speedBtn">Acelerar ×60</button>
     <button class="tb-btn" data-clk="real" id="realBtn">Hora real</button>
+    <button class="tb-btn" id="resetBtn" title="Vuelve todo al estado inicial">Reiniciar demo</button>
     <button class="tb-btn" id="soloBtn">Solo tótem</button>
   </div>
 </div>
@@ -888,7 +889,7 @@ function adminSpecies(){
       <div><div class="nm">${esc(s.name.es)}</div><div class="sc">${esc(s.sci)}</div>
         ${s.retired ? `<div class="retired">Baja · ${esc(s.retired.reason)} · ${s.retired.at}</div>` : ''}</div>
       <div class="scol">${s.retired
-        ? `<button class="btn" data-aact="reactivate" data-id="${s.id}">Reactivar</button>`
+        ? `<button class="btn" data-aact="reactivate" data-id="${s.id}">Reactivar</button><button class="btn danger" data-aact="delete" data-id="${s.id}">Eliminar</button>`
         : `<label class="sw" title="Visible en los tótems"><input type="checkbox" data-aact="toggle" data-id="${s.id}" ${s.active ? 'checked' : ''}><span></span></label>
            <button class="btn danger" data-aact="baja" data-id="${s.id}">Baja</button>`}</div>
     </div>`).join('');
@@ -958,8 +959,10 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function runAI(){
   const ai = state.ai;
   ai.name = $('#aiName').value.trim(); ai.tank = $('#aiTank').value;
-  if (state.db.species.some(s => s.id === 'morena')){ toast('La morena ya está publicada. Pulsa «Crear otra» o dala de baja para repetir.', 'warn'); return; }
   if (!/muraena\s+helena|morena/i.test(ai.name)){ ai.phase = 'unknown'; renderAdmin(); return; }
+  const prev = state.db.species.find(s => s.id === 'morena');
+  if (prev && prev.active){ toast('La morena ya está en los tótems. Dala de baja o elimínala en «Especies» para volver a generarla.', 'warn'); return; }
+  if (prev) state.db.species = state.db.species.filter(s => s.id !== 'morena');
   ai.phase = 'running'; ai.reviewed = false; ai.fields = {}; renderAdmin();
   const step = (i, cls) => { const el = $('#aiStep' + i); if (el){ el.className = cls; if (cls === 'ok') el.querySelector('i').innerHTML = svg('check', 11, 3.5); } };
   step(0, 'run'); await sleep(900); step(0, 'ok');
@@ -1023,6 +1026,10 @@ document.addEventListener('click', e => {
     (s.retired.rules || []).forEach(rid => { db.feedings.find(r => r.id === rid).suspended = false; });
     s.retired = null; s.active = true;
   }, 'Ficha reactivada.');
+  else if (act === 'delete'){
+    if (id === 'morena') state.ai = {phase:'idle', name:'', tank:'mediterraneo', reviewed:false, trLang:'en'};
+    mutate(db => { db.species = db.species.filter(x => x.id !== id); }, 'Ficha eliminada. La baja sigue en el registro.');
+  }
   else if (act === 'aiTry'){ $('#aiName').value = 'Muraena helena'; }
   else if (act === 'aiGo') runAI();
   else if (act === 'aiTr'){ state.ai.trLang = a.dataset.l; AI_FIELDS.forEach(([k]) => { const ta = $('#aiF_' + k); if (ta) state.ai.fields[k] = ta.value; }); renderAdmin(); }
@@ -1110,6 +1117,7 @@ function setMobile(m){ document.body.dataset.m = m; document.querySelectorAll('.
 document.querySelectorAll('.mswitch button').forEach(b => b.addEventListener('click', () => setMobile(b.dataset.m)));
 function solo(on){ document.body.classList.toggle('solo', on); fit(); }
 $('#soloBtn').addEventListener('click', () => solo(true));
+$('#resetBtn').addEventListener('click', () => location.reload());
 $('#exitSolo').addEventListener('click', () => solo(false));
 document.addEventListener('keydown', e => { if (e.key === 'Escape'){ solo(false); $('#modalBg').classList.remove('on'); } });
 
