@@ -1,0 +1,1120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Demo tótems Sea Life</title>
+<style>
+:root{
+  --desk:#e8edf2; --ink:#0f1b2a; --muted:#5b6b7d; --line:#dbe2ea; --soft:#f4f7fa;
+  --accent:#0b7f8a; --ok:#15803d; --warn:#b45309; --bad:#b91c1c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+html{box-sizing:border-box}
+body{background:var(--desk);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;overflow:hidden;display:flex;flex-direction:column;height:100%}
+button{font-family:inherit}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #0b7f8a;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition:none!important}}
+
+/* ---------- barra superior ---------- */
+.topbar{min-height:56px;display:flex;align-items:center;gap:14px;padding:8px 18px;background:#0f1b2a;color:#fff;flex-wrap:wrap}
+.topbar .who{font-size:14px;white-space:nowrap}
+.topbar .who b{letter-spacing:.02em}
+.topbar .who span{opacity:.6}
+.clockbox{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.clockbox .t{font-variant-numeric:tabular-nums;font-weight:600;min-width:170px;text-align:right}
+.clockbox .mode{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:#f59e0b;color:#1f1300;text-transform:uppercase;letter-spacing:.04em}
+.clockbox .mode.real{background:#22c55e;color:#032510}
+.tb-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.tb-btn:hover{background:rgba(255,255,255,.18)}
+.tb-btn.on{background:#fff;color:#0f1b2a}
+.mswitch{display:none}
+
+/* ---------- escenario ---------- */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 470px;flex:1;min-height:0}
+.device-wrap{position:relative;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden;min-height:0}
+.device{position:relative;background:#0a0f16;border-radius:30px;padding:14px;box-shadow:0 30px 60px rgba(10,20,40,.35),inset 0 0 0 2px #1f2a37}
+.device::after{content:"DEMO · p4Solutions";position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);width:34%;min-width:130px;height:26px;background:linear-gradient(#1b2430,#0a0f16);border-radius:0 0 10px 10px;color:#7d8da0;font-size:10px;font-weight:700;letter-spacing:.12em;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.clip{position:relative;overflow:hidden;border-radius:16px;background:#03182c}
+.admin{background:#fff;border-left:1px solid var(--line);overflow:auto;min-height:0}
+body.solo .stage{grid-template-columns:1fr}
+body.solo .admin{display:none}
+.exit-solo{display:none;position:fixed;top:12px;right:12px;z-index:300}
+body.solo .exit-solo{display:block}
+body.solo .topbar{display:none}
+
+@media (max-width:980px){
+  body{overflow:auto;height:auto;display:block}
+  .stage{grid-template-columns:1fr}
+  .device-wrap{height:calc(100vh - 150px);min-height:520px}
+  .admin{border-left:0;min-height:calc(100vh - 150px)}
+  body[data-m="panel"] .device-wrap{display:none}
+  body[data-m="totem"] .admin{display:none}
+  .mswitch{display:flex;gap:6px;padding:10px 16px;background:#0f1b2a}
+  .mswitch button{flex:1;padding:9px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;font-weight:600}
+  .mswitch button.on{background:#fff;color:#0f1b2a}
+  .clockbox{margin-left:0;width:100%}
+  .topbar .who span{display:none}
+  .clockbox .t{text-align:left;min-width:0}
+  .topbar{padding:10px 16px}
+}
+
+/* =========================================================
+   TÓTEM — lienzo lógico de 1080 x 1920 escalado con JS
+   ========================================================= */
+.screen{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;transform-origin:0 0;color:#eaf6ff;
+  font-family:"Avenir Next","Nunito","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;user-select:none}
+.ocean{position:absolute;inset:0;background:linear-gradient(180deg,#06305a 0%,#042545 35%,#031a33 70%,#020e1e 100%)}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
+.glow.g1{width:900px;height:900px;left:-300px;top:-350px;background:#1f8fff;animation:drift1 22s ease-in-out infinite alternate}
+.glow.g2{width:800px;height:800px;right:-350px;top:600px;background:#0fc3b4;opacity:.25;animation:drift2 26s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(260px,180px)}}
+@keyframes drift2{to{transform:translate(-220px,-260px)}}
+.bub{position:absolute;bottom:-60px;border-radius:50%;border:2px solid rgba(190,235,255,.35);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.35),rgba(255,255,255,0) 60%);animation:rise linear infinite}
+@keyframes rise{0%{transform:translate(0,0);opacity:0}10%{opacity:1}100%{transform:translate(40px,-2050px);opacity:0}}
+
+.view{position:absolute;inset:0;display:flex;flex-direction:column;padding:70px 64px 60px}
+.view.anim{animation:vin .45s ease both}
+@keyframes vin{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+
+.t-head{display:flex;justify-content:space-between;align-items:center;height:84px}
+.brand{font-size:34px;font-weight:800;letter-spacing:.2em;cursor:default}
+.brand span{font-weight:500;letter-spacing:.06em;opacity:.7;margin-left:14px}
+.langs{display:flex;gap:12px}
+.langs button{font-size:28px;font-weight:700;padding:14px 26px;border-radius:999px;border:2px solid rgba(255,255,255,.3);background:transparent;color:#eaf6ff;cursor:pointer}
+.langs button.on{background:#fff;color:#04213d;border-color:#fff}
+
+.t-tank{margin-top:50px}
+.eyebrow{font-size:25px;letter-spacing:.16em;text-transform:uppercase;opacity:.8;font-weight:700}
+.t-tank h1{font-size:100px;line-height:1;margin:16px 0 18px;font-weight:800;color:var(--tc);letter-spacing:-.01em}
+.t-tank p{font-size:34px;opacity:.82;margin:0;line-height:1.3}
+
+.grid{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:30px;align-content:start;flex:1;min-height:0}
+.grid.c1{grid-template-columns:1fr}
+.grid.c3{grid-template-columns:1fr 1fr 1fr;gap:22px}
+.grid.c3 .card .cn{font-size:32px}
+.grid.c3 .card .sn{font-size:24px}
+.grid.c3 .card .cap{padding:16px 20px 20px}
+.card{all:unset;cursor:pointer;border-radius:34px;overflow:hidden;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.13);display:flex;flex-direction:column;transition:transform .15s}
+.card:active{transform:scale(.97)}
+.card .ph{background-size:cover;background-position:center;position:relative}
+.iucn-chip{position:absolute;top:18px;right:18px;font-weight:800;font-size:24px;padding:8px 16px;border-radius:12px;letter-spacing:.04em}
+.card .cap{padding:22px 28px 26px}
+.card .cn{font-size:40px;font-weight:700;line-height:1.12}
+.card .sn{font-size:28px;font-style:italic;opacity:.7;margin-top:6px}
+.empty{font-size:36px;opacity:.7;text-align:center;padding:120px 40px;grid-column:1/-1}
+
+.hint{display:flex;align-items:center;justify-content:center;gap:14px;font-size:30px;opacity:.8;margin:24px 0}
+.hint svg{animation:nudge 2.4s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+.live{border-radius:34px;display:flex;align-items:center;gap:28px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15)}
+.live.card-mode{padding:26px 32px;min-height:190px}
+.live.strip{padding:14px 24px;gap:20px;border-radius:26px;min-height:104px}
+.live .thumbs{display:flex;flex:none}
+.live .thumbs img,.live .thumbs .ic{width:100px;height:100px;border-radius:50%;object-fit:cover;border:4px solid #06305a;background:#0b3b66}
+.live .thumbs .ic{display:flex;align-items:center;justify-content:center;color:#bfe9ff}
+.live .thumbs > * + *{margin-left:-34px}
+.live.strip .thumbs img,.live.strip .thumbs .ic{width:76px;height:76px;border-width:3px}
+.live.strip .thumbs > * + *{margin-left:-24px}
+.live .txt{flex:1;min-width:0}
+.live .lbl{font-size:22px;text-transform:uppercase;letter-spacing:.12em;opacity:.85;font-weight:800;display:flex;align-items:center;gap:12px;white-space:nowrap}
+.live .ttl{font-size:37px;font-weight:800;line-height:1.1;margin-top:6px}
+.live .where{font-size:28px;display:flex;align-items:center;gap:8px;opacity:.9;margin-top:8px}
+.live.strip .lbl{font-size:19px}
+.live.strip .ttl{font-size:29px;margin-top:2px}
+.live.strip .where{font-size:23px;margin-top:4px}
+.live .when{text-align:right;flex:none}
+.live .big{font-size:58px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.live .sub{font-size:25px;opacity:.75;margin-top:8px}
+.live.strip .big{font-size:42px}
+.live.strip .sub{font-size:20px}
+.live .delay{display:inline-block;background:#ffb547;color:#2a1600;font-size:20px;font-weight:800;padding:4px 12px;border-radius:999px;letter-spacing:0;text-transform:none}
+.live.soon{background:linear-gradient(90deg,rgba(255,181,71,.30),rgba(255,181,71,.08));border-color:#ffb547;animation:glow 2.2s ease-in-out infinite}
+.live.soon .big{color:#ffd08a}
+.live.soon .lbl{color:#ffd08a}
+.live.now{background:linear-gradient(90deg,rgba(63,216,196,.42),rgba(63,216,196,.10));border-color:#3fd8c4;animation:pulse 1.4s ease-in-out infinite}
+.live.now .lbl,.live.now .big{color:#8ff6e8}
+.live.idle{opacity:.75;font-size:30px;padding:30px 34px}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(255,181,71,0)}50%{box-shadow:0 0 40px 4px rgba(255,181,71,.35)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(63,216,196,.0)}50%{box-shadow:0 0 50px 8px rgba(63,216,196,.45)}}
+.here-tag{background:#fff;color:#04213d;font-weight:800;padding:4px 14px;border-radius:999px;font-size:22px;letter-spacing:.02em;text-transform:none}
+
+.big-btn{margin-top:24px;height:104px;border-radius:999px;font-size:34px;font-weight:800;background:#fff;color:#04213d;display:flex;align-items:center;justify-content:center;gap:16px;border:none;cursor:pointer;flex:none}
+
+/* ficha */
+.sp-photo{position:absolute;left:0;right:0;top:0;height:580px;background-size:cover;background-position:center}
+.sp-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,26,51,.35) 0%,rgba(3,26,51,0) 22%,rgba(3,26,51,0) 50%,#042545 100%)}
+.credit{position:absolute;right:40px;top:440px;font-size:17px;opacity:.6;z-index:2;text-align:right}
+.sp-top{position:absolute;top:56px;left:50px;right:50px;display:flex;justify-content:space-between;align-items:center;z-index:3}
+.pill-btn{background:rgba(3,26,51,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,.28);color:#fff;font-size:28px;font-weight:700;padding:16px 28px;border-radius:999px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.counter{font-size:26px;font-weight:700;background:rgba(3,26,51,.72);padding:12px 22px;border-radius:999px}
+.sp-body{position:absolute;top:478px;left:64px;right:64px;bottom:0;display:flex;flex-direction:column;z-index:2}
+.sp-body .eyebrow{color:var(--tc)}
+.sp-body h1{font-size:78px;line-height:1.02;margin:8px 0 6px;font-weight:800}
+.sp-body .sci{font-size:34px;font-style:italic;opacity:.75}
+.fact{margin-top:24px;padding:22px 30px;border-radius:28px;background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 24%,transparent),rgba(255,255,255,.04));border-left:8px solid var(--tc)}
+.fact .k{font-size:23px;text-transform:uppercase;letter-spacing:.14em;color:var(--tc);font-weight:800}
+.fact p{font-size:33px;line-height:1.28;margin:8px 0 0}
+.fgrid{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:18px 30px}
+.fi{display:flex;gap:18px;align-items:flex-start}
+.fi .ico{flex:none;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:var(--tc)}
+.fi .k{font-size:21px;text-transform:uppercase;letter-spacing:.12em;opacity:.65;font-weight:700}
+.fi .v{font-size:28px;line-height:1.22;margin-top:3px}
+.duo{margin-top:22px;display:grid;grid-template-columns:1.15fr 1fr;gap:24px}
+.box{border-radius:26px;background:rgba(255,255,255,.07);padding:22px 26px}
+.box .k{font-size:21px;text-transform:uppercase;letter-spacing:.12em;opacity:.65;font-weight:700}
+.scale{display:flex;gap:7px;margin-top:18px}
+.scale span{flex:1;height:52px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800;opacity:.25}
+.scale span.on{opacity:1;transform:scaleY(1.22);box-shadow:0 0 0 3px #fff}
+.iucn-name{font-size:31px;font-weight:800;margin-top:18px}
+.feed-line{margin-top:12px}
+.feed-line .ft{font-size:22px;opacity:.8}
+.feed-line .tm{font-size:38px;font-weight:800;font-variant-numeric:tabular-nums}
+.feed-line .dy{font-size:23px;opacity:.8}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:20px;font-weight:800;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.14)}
+.chip.ok{background:#3fd8c4;color:#032520}
+.chip.warn{background:#ffb547;color:#2a1600}
+.chip.bad{background:#ff7a7a;color:#2a0000}
+.nofeed{font-size:28px;opacity:.75;margin-top:14px}
+.sp-live{margin-top:auto;padding-top:18px}
+.sp-nav{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 0 40px}
+.round{width:108px;height:108px;border-radius:50%;background:#fff;color:#04213d;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+
+/* agenda */
+.ag-head h1{font-size:92px;margin:16px 0 8px;font-weight:800;line-height:1}
+.ag-head .date{font-size:34px;opacity:.8}
+.ag-head .date::first-letter{text-transform:uppercase}
+.tl{margin-top:40px;display:flex;flex-direction:column;gap:14px;flex:1;min-height:0}
+.ti{display:grid;grid-template-columns:150px 1fr auto;align-items:center;gap:26px;padding:20px 28px;border-radius:24px;background:rgba(255,255,255,.07);border:2px solid transparent}
+.ti .t{font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.ti .t s{display:block;font-size:22px;opacity:.6;font-weight:600;margin-top:4px}
+.ti .tt{font-size:33px;font-weight:700;line-height:1.15}
+.ti .wh{font-size:24px;opacity:.75;display:flex;align-items:center;gap:8px;margin-top:6px}
+.ti .chip{font-size:22px;padding:8px 16px}
+.ti.past,.ti.done{opacity:.42}
+.ti.cancelled{opacity:.5}
+.ti.cancelled .tt{text-decoration:line-through}
+.ti.soon{border-color:#ffb547;background:rgba(255,181,71,.14)}
+.ti.now{border-color:#3fd8c4;background:rgba(63,216,196,.22);animation:pulse 1.4s ease-in-out infinite}
+.ti.here .tt::after{content:attr(data-here);margin-left:14px;font-size:20px;background:#fff;color:#04213d;padding:3px 12px;border-radius:999px;vertical-align:middle;font-weight:800}
+.nowmark{display:flex;align-items:center;gap:16px;color:#8ff6e8;font-size:25px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.nowmark i{flex:1;height:3px;background:currentColor;border-radius:2px}
+
+/* configuración */
+.setup h1{font-size:72px;margin:20px 0 10px}
+.setup p{font-size:30px;opacity:.75;margin:0 0 40px}
+.tank-opt{all:unset;cursor:pointer;display:flex;align-items:center;gap:26px;padding:30px 34px;border-radius:26px;background:rgba(255,255,255,.08);margin-bottom:18px;font-size:40px;font-weight:700}
+.tank-opt i{width:18px;height:70px;border-radius:9px;background:var(--tc)}
+.tank-opt small{display:block;font-size:24px;font-weight:500;opacity:.7}
+.tank-opt.on{outline:3px solid #fff}
+
+/* superposiciones del tótem */
+.offline{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:#ffb547;color:#2a1600;font-size:21px;font-weight:800;padding:9px 20px;border-radius:999px;display:none;align-items:center;gap:10px;z-index:40;white-space:nowrap}
+.offline.on{display:flex}
+.idlebar{position:absolute;left:0;right:0;bottom:0;height:64px;background:rgba(2,14,30,.88);display:none;align-items:center;justify-content:center;font-size:24px;z-index:40}
+.idlebar.on{display:flex}
+.idlebar b{position:absolute;left:0;bottom:0;height:8px;background:#3fd8c4}
+.takeover{position:absolute;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px;background:radial-gradient(circle at 50% 38%,#0f5f6a 0%,#03213a 55%,#020e1e 100%);cursor:pointer}
+.takeover.on{display:flex;animation:vin .5s ease both}
+.to-ring{width:420px;height:420px;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:ring 1.6s ease-out infinite;margin-bottom:60px}
+.to-ring img,.to-ring .ic{width:400px;height:400px;border-radius:50%;object-fit:cover;border:8px solid #3fd8c4;background:#0b3b66;display:flex;align-items:center;justify-content:center;color:#bfe9ff}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(63,216,196,.6)}100%{box-shadow:0 0 0 70px rgba(63,216,196,0)}}
+.to-now{font-size:96px;font-weight:900;color:#8ff6e8;letter-spacing:.02em;line-height:1}
+.to-title{font-size:68px;font-weight:800;margin-top:26px;line-height:1.1}
+.to-where{font-size:40px;margin-top:30px;display:flex;align-items:center;gap:12px;justify-content:center}
+.to-where .here-tag{font-size:36px;padding:10px 26px}
+.to-sub{font-size:30px;opacity:.75;margin-top:14px}
+.to-close{font-size:24px;opacity:.55;margin-top:70px}
+
+/* =========================================================
+   PANEL DE GESTIÓN
+   ========================================================= */
+.tabs{position:sticky;top:0;z-index:5;display:flex;background:#fff;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;padding:14px 4px 12px;font-size:13px;font-weight:650;color:var(--muted);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.abody{padding:18px 20px 40px}
+.abody h3{font-size:16px;margin:0 0 3px}
+.abody .sub{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.45}
+.arow{display:grid;grid-template-columns:62px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);align-items:start}
+.arow .tm{font-weight:750;font-size:16px;font-variant-numeric:tabular-nums}
+.arow .tm s{display:block;font-size:11.5px;color:var(--muted);font-weight:500}
+.arow .nm{font-weight:650}
+.arow .meta{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.arow.now{background:#ecfdf8;margin:0 -20px;padding:11px 20px}
+.acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.btn{font-size:12.5px;padding:6px 10px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;color:var(--ink);font-weight:600}
+.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:disabled{opacity:.4;cursor:not-allowed}
+.btn.danger{color:var(--bad)}
+.btn.lg{font-size:14px;padding:10px 14px}
+.badge{font-size:11px;font-weight:750;padding:2px 8px;border-radius:999px;background:#eef2f6;color:#334155;white-space:nowrap}
+.badge.now{background:#0f766e;color:#fff}
+.badge.soon{background:#fde7c4;color:#7c3a00}
+.badge.done{background:#dcfce7;color:#14532d}
+.badge.cancel{background:#fee2e2;color:#7f1d1d}
+.badge.delay{background:#fef3c7;color:#78350f}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--tc)}
+.tank-h{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 2px;font-weight:700;display:flex;align-items:center;gap:7px}
+.srow{display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.srow img{width:46px;height:46px;border-radius:10px;object-fit:cover}
+.srow .nm{font-weight:650}
+.srow .sc{font-size:12px;color:var(--muted);font-style:italic}
+.srow.off img{filter:grayscale(1);opacity:.5}
+.srow.off .nm{color:var(--muted)}
+.retired{font-size:11.5px;color:var(--bad);font-weight:650;margin-top:2px}
+.sw{position:relative;width:40px;height:23px;flex:none;display:inline-block}
+.sw input{opacity:0;width:0;height:0}
+.sw span{position:absolute;inset:0;background:#cbd5e1;border-radius:999px;cursor:pointer;transition:.2s}
+.sw span::before{content:"";position:absolute;left:3px;top:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked + span{background:var(--accent)}
+.sw input:checked + span::before{transform:translateX(17px)}
+.scol{display:flex;align-items:center;gap:8px}
+.note{font-size:12.5px;color:var(--muted);background:var(--soft);padding:10px 12px;border-radius:10px;line-height:1.5;margin-top:14px}
+.note b{color:var(--ink)}
+.pending{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;padding:10px 12px;border-radius:10px;font-size:12.5px;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+.field{margin-top:12px}
+.field label{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
+.field input[type=text],.field select,.field textarea{width:100%;font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.field textarea{resize:vertical;min-height:40px;line-height:1.4}
+.inline{display:flex;gap:8px;align-items:center}
+.try{font-size:12.5px;color:var(--muted);margin-top:8px}
+.try button{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;padding:0;font-size:12.5px;text-decoration:underline}
+.steps{list-style:none;padding:0;margin:14px 0 4px}
+.steps li{display:flex;align-items:center;gap:9px;font-size:13px;padding:5px 0;color:var(--muted)}
+.steps li i{width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e1;flex:none;display:flex;align-items:center;justify-content:center}
+.steps li.run{color:var(--ink);font-weight:600}
+.steps li.run i{border-color:var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
+.steps li.ok{color:var(--ink)}
+.steps li.ok i{background:var(--accent);border-color:var(--accent);color:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+.aiprev{display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:center;margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:10px}
+.aiprev img{width:90px;height:68px;object-fit:cover;border-radius:8px}
+.tr{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tr .th{display:flex;border-bottom:1px solid var(--line)}
+.tr .th button{flex:1;border:none;background:var(--soft);padding:7px;font-size:12px;font-weight:700;cursor:pointer;color:var(--muted)}
+.tr .th button.on{background:#fff;color:var(--ink)}
+.tr .tb{padding:10px 12px;font-size:12.5px;line-height:1.5;color:#334155}
+.check{display:flex;gap:9px;align-items:center;margin-top:16px;font-weight:650;font-size:13.5px}
+.check input{width:18px;height:18px}
+.okbox{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.5}
+.stat{display:grid;grid-template-columns:130px 1fr 34px;gap:8px;align-items:center;font-size:12.5px;margin:6px 0}
+.stat .bar{height:9px;border-radius:5px;background:#eef2f6;overflow:hidden}
+.stat .bar b{display:block;height:100%;background:var(--accent)}
+.stat .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.sect{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.credits{font-size:11.5px;color:var(--muted);line-height:1.6}
+.credits a{color:var(--muted)}
+.log{font-size:12.5px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.log .when{color:var(--muted);font-size:11.5px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(15,27,42,.5);display:none;align-items:center;justify-content:center;z-index:250;padding:16px}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:16px;width:min(470px,100%);padding:22px;box-shadow:0 30px 60px rgba(0,0,0,.3);max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 4px;font-size:18px}
+.modal .radio{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.modal .radio label{display:flex;gap:8px;align-items:center;font-size:13.5px;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:500}
+.modal .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+
+.toasts{position:fixed;right:18px;bottom:18px;z-index:260;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{background:#0f1b2a;color:#fff;padding:11px 14px;border-radius:12px;font-size:13px;max-width:380px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:tin .3s ease both;line-height:1.45}
+.toast.ok{border-left:4px solid #22c55e}
+.toast.warn{border-left:4px solid #f59e0b}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body data-m="totem">
+
+<div class="topbar">
+  <div class="who"><b>p4Solutions</b> · Demo gestor de tótems <span>· Sea Life Benalmádena</span></div>
+  <div class="clockbox">
+    <span class="t" id="clockTxt"></span>
+    <span class="mode" id="clockMode">simulada</span>
+    <button class="tb-btn" data-clk="-10">−10 min</button>
+    <button class="tb-btn" data-clk="+10">+10 min</button>
+    <button class="tb-btn" data-clk="speed" id="speedBtn">Acelerar ×60</button>
+    <button class="tb-btn" data-clk="real" id="realBtn">Hora real</button>
+    <button class="tb-btn" id="soloBtn">Solo tótem</button>
+  </div>
+</div>
+<div class="mswitch"><button data-m="totem" class="on">Tótem</button><button data-m="panel">Panel de gestión</button></div>
+
+<div class="stage">
+  <div class="device-wrap" id="deviceWrap">
+    <div class="device"><div class="clip" id="clip">
+      <div class="screen" id="screen">
+        <div class="ocean"></div>
+        <div class="glow g1"></div><div class="glow g2"></div>
+        <div id="bubbles"></div>
+        <div class="view" id="view"></div>
+        <div class="offline" id="offline"></div>
+        <div class="idlebar" id="idlebar"></div>
+        <div class="takeover" id="takeover" data-act="closeTakeover"></div>
+      </div>
+    </div></div>
+  </div>
+  <aside class="admin">
+    <div class="tabs" id="tabs">
+      <button data-tab="feed" class="on">Alimentaciones</button>
+      <button data-tab="species">Especies</button>
+      <button data-tab="ai">Nueva ficha · IA</button>
+      <button data-tab="system">Tótem</button>
+    </div>
+    <div class="abody" id="adminBody"></div>
+  </aside>
+</div>
+<button class="tb-btn exit-solo" id="exitSolo" style="background:#0f1b2a">Salir de solo tótem (Esc)</button>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+document.documentElement.lang = 'es';
+document.body.dataset.m = 'totem';
+
+/* =========================================================
+   DATOS DE EJEMPLO
+   Horarios: web de Sea Life Benalmádena, consultada el 22-09-2026.
+   Estado UICN: Wikidata (P141), consultado el 22-09-2026.
+   Fichas: contenido de ejemplo, a validar por los acuaristas.
+   ========================================================= */
+const IMG = 'img/';
+const CREDITS = {
+  'puntas-negras':{a:'fishx6 (whatsthatfish.com)',l:'Dominio público',u:'https://commons.wikimedia.org/wiki/File:Carcharhinus_melanopterus_mirihi.jpg'},
+  'tortuga-verde':{a:'Charles J. Sharp',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Green_sea_turtle_(Chelonia_mydas)_Moorea.jpg'},
+  'tiburon-cebra':{a:'Felix Frost-Savage',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Zebra_Shark_at_Sydney_Sea_Life_Aquarium.png'},
+  'pulpo':{a:'Beckmannjan',l:'CC BY-SA 3.0',u:'https://commons.wikimedia.org/wiki/File:Octopus_vulgaris2.jpg'},
+  'caballito':{a:'Fastily',l:'CC BY-SA 3.0',u:'https://commons.wikimedia.org/wiki/File:LongSnoutedSeahorse1600ppx.jpg'},
+  'morena':{a:'Fernando Losada Rodríguez',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Muraena_helena.002_-_Aquarium_Finisterrae.jpg'},
+  'nutria':{a:'fir0002 (flagstaffotos)',l:'GFDL 1.2',u:'https://commons.wikimedia.org/wiki/File:Otter_-_melbourne_zoo.jpg'},
+  'raya':{a:'Hans Hillewaert',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Raja_clavata_(juv).jpg'},
+  'medusa':{a:'Hans Hillewaert',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Pelagia_noctiluca_(Sardinia).jpg'}
+};
+
+const TANKS = [
+  {id:'jurasico', color:'#6cb4ff', name:{es:'Túnel Jurásico',en:'Jurassic Tunnel',de:'Jura-Tunnel'},
+    desc:{es:'Camina bajo el agua entre tiburones y tortugas.',en:'Walk beneath the water among sharks and turtles.',de:'Spaziere unter Wasser zwischen Haien und Schildkröten.'}},
+  {id:'mediterraneo', color:'#45dcc8', name:{es:'Zona Mediterránea',en:'Mediterranean Zone',de:'Mittelmeer-Zone'},
+    desc:{es:'Los vecinos de nuestra propia costa.',en:'Our neighbours from right here on the coast.',de:'Unsere Nachbarn direkt von der Küste.'}},
+  {id:'nutrias', color:'#ffb547', name:{es:'El Templo de las Nutrias',en:'The Otter Temple',de:'Der Tempel der Otter'},
+    desc:{es:'Una familia de nutrias muy juguetonas.',en:'A very playful family of otters.',de:'Eine sehr verspielte Otterfamilie.'}},
+  {id:'rayas', color:'#bba2ff', name:{es:'Isla de Rayas',en:'Ray Island',de:'Rochen-Insel'},
+    desc:{es:'Rayas de nuestros fondos marinos, de cerca.',en:'Rays from our seabed, up close.',de:'Rochen vom Meeresgrund, ganz aus der Nähe.'}},
+  {id:'biolum', color:'#72f0ff', name:{es:'Experiencia Bioluminiscente',en:'Bioluminescent Experience',de:'Biolumineszenz-Erlebnis'},
+    desc:{es:'Criaturas que fabrican su propia luz.',en:'Creatures that make their own light.',de:'Lebewesen, die ihr eigenes Licht erzeugen.'}}
+];
+
+const SPECIES = [
+  {id:'puntas-negras', tank:'jurasico', img:'puntas-negras.jpg', sci:'Carcharhinus melanopterus', iucn:'VU', active:true,
+    name:{es:'Tiburón de puntas negras',en:'Blacktip reef shark',de:'Schwarzspitzen-Riffhai'},
+    fact:{es:'Suele nadar en aguas tan poco profundas que la punta negra de su aleta dorsal asoma por encima del agua.',en:'It often swims in water so shallow that the black tip of its dorsal fin sticks out above the surface.',de:'Oft schwimmt er in so flachem Wasser, dass die schwarze Spitze seiner Rückenflosse aus dem Wasser ragt.'},
+    habitat:{es:'Arrecifes de coral y lagunas poco profundas',en:'Coral reefs and shallow lagoons',de:'Korallenriffe und flache Lagunen'},
+    diet:{es:'Peces pequeños, calamares, pulpos y crustáceos',en:'Small fish, squid, octopus and crustaceans',de:'Kleine Fische, Kalmare, Kraken und Krebstiere'},
+    size:{es:'Hasta 1,6 m',en:'Up to 1.6 m',de:'Bis 1,6 m'},
+    dist:{es:'Océanos Índico y Pacífico tropicales',en:'Tropical Indian and Pacific oceans',de:'Tropischer Indischer und Pazifischer Ozean'},
+    threats:{es:'Pesca excesiva y deterioro de los arrecifes',en:'Overfishing and reef degradation',de:'Überfischung und Zerstörung der Riffe'}},
+  {id:'tiburon-cebra', tank:'jurasico', img:'tiburon-cebra.jpg', sci:'Stegostoma tigrinum', iucn:'EN', active:true,
+    name:{es:'Tiburón cebra',en:'Zebra shark',de:'Zebrahai'},
+    fact:{es:'De cría tiene rayas como una cebra; al crecer, las rayas se convierten en manchas, como las de un leopardo.',en:'Young zebra sharks are striped like a zebra; as they grow, the stripes turn into spots, like a leopard’s.',de:'Jungtiere sind gestreift wie ein Zebra; mit dem Alter werden aus den Streifen Flecken wie beim Leoparden.'},
+    habitat:{es:'Fondos de arena junto a arrecifes de coral',en:'Sandy bottoms near coral reefs',de:'Sandböden in der Nähe von Korallenriffen'},
+    diet:{es:'Moluscos, crustáceos y peces pequeños',en:'Molluscs, crustaceans and small fish',de:'Weichtiere, Krebstiere und kleine Fische'},
+    size:{es:'Hasta 2,5 m',en:'Up to 2.5 m',de:'Bis 2,5 m'},
+    dist:{es:'Indo-Pacífico tropical, del mar Rojo a Australia',en:'Tropical Indo-Pacific, from the Red Sea to Australia',de:'Tropischer Indopazifik, vom Roten Meer bis Australien'},
+    threats:{es:'Pesca y pérdida de arrecifes',en:'Fishing and loss of reefs',de:'Fischerei und Verlust von Riffen'}},
+  {id:'tortuga-verde', tank:'jurasico', img:'tortuga-verde.jpg', sci:'Chelonia mydas', iucn:'LC', active:true,
+    name:{es:'Tortuga verde',en:'Green sea turtle',de:'Grüne Meeresschildkröte'},
+    fact:{es:'Su nombre no viene del caparazón, sino del color verdoso de su grasa, que se debe a su dieta de algas.',en:'Its name comes not from its shell but from the greenish colour of its fat, thanks to its diet of algae.',de:'Ihr Name kommt nicht vom Panzer, sondern von der grünlichen Farbe ihres Fetts – dank ihrer Algennahrung.'},
+    habitat:{es:'Praderas marinas y arrecifes de aguas cálidas',en:'Seagrass meadows and warm-water reefs',de:'Seegraswiesen und Riffe in warmen Gewässern'},
+    diet:{es:'De adulta, casi solo algas y plantas marinas',en:'As an adult, almost only algae and seagrass',de:'Als Erwachsene fast nur Algen und Seegras'},
+    size:{es:'Caparazón de hasta 1,2 m',en:'Shell up to 1.2 m',de:'Panzer bis 1,2 m'},
+    dist:{es:'Mares tropicales y subtropicales de todo el mundo',en:'Tropical and subtropical seas worldwide',de:'Tropische und subtropische Meere weltweit'},
+    threats:{es:'Redes de pesca, plásticos y pérdida de playas de anidación',en:'Fishing nets, plastic and loss of nesting beaches',de:'Fischernetze, Plastik und Verlust von Niststränden'}},
+  {id:'pulpo', tank:'mediterraneo', img:'pulpo.jpg', sci:'Octopus vulgaris', iucn:'LC', active:true,
+    name:{es:'Pulpo común',en:'Common octopus',de:'Gewöhnlicher Krake'},
+    fact:{es:'Tiene tres corazones y sangre azul, y puede cambiar de color y de textura en menos de un segundo.',en:'It has three hearts and blue blood, and can change colour and texture in under a second.',de:'Er hat drei Herzen und blaues Blut und ändert Farbe und Hautstruktur in weniger als einer Sekunde.'},
+    habitat:{es:'Fondos rocosos, grietas y praderas costeras',en:'Rocky bottoms, crevices and coastal seagrass',de:'Felsgründe, Spalten und küstennahes Seegras'},
+    diet:{es:'Cangrejos, almejas y otros moluscos, y peces',en:'Crabs, clams and other molluscs, and fish',de:'Krabben, Muscheln und andere Weichtiere sowie Fische'},
+    size:{es:'Hasta 1 m con los brazos',en:'Up to 1 m including arms',de:'Bis 1 m mit Armen'},
+    dist:{es:'Mediterráneo y Atlántico oriental',en:'Mediterranean and eastern Atlantic',de:'Mittelmeer und Ostatlantik'},
+    threats:{es:'Pesca intensiva',en:'Intensive fishing',de:'Intensive Fischerei'}},
+  {id:'caballito', tank:'mediterraneo', img:'caballito.jpg', pos:'center top', sci:'Hippocampus guttulatus', iucn:'NT', active:true,
+    name:{es:'Caballito de mar narizón',en:'Long-snouted seahorse',de:'Langschnäuziges Seepferdchen'},
+    fact:{es:'Es el macho quien se queda embarazado: la hembra deja los huevos en su bolsa y él da a luz a las crías.',en:'It’s the male who gets pregnant: the female leaves her eggs in his pouch and he gives birth to the young.',de:'Das Männchen wird schwanger: Das Weibchen legt die Eier in seine Bruttasche, und er bringt die Jungen zur Welt.'},
+    habitat:{es:'Praderas de posidonia y fondos con algas',en:'Posidonia seagrass meadows and algae beds',de:'Posidonia-Seegraswiesen und Algenböden'},
+    diet:{es:'Pequeños crustáceos que caza al acecho',en:'Tiny crustaceans it ambushes',de:'Kleine Krebstiere, die es aus dem Hinterhalt fängt'},
+    size:{es:'Hasta unos 18 cm',en:'Up to about 18 cm',de:'Bis etwa 18 cm'},
+    dist:{es:'Mediterráneo y Atlántico nororiental',en:'Mediterranean and north-east Atlantic',de:'Mittelmeer und Nordostatlantik'},
+    threats:{es:'Pérdida de praderas marinas y captura accidental',en:'Loss of seagrass meadows and bycatch',de:'Verlust von Seegraswiesen und Beifang'}},
+  {id:'nutria', tank:'nutrias', img:'nutria.jpg', sci:'Aonyx cinereus', iucn:'VU', active:true,
+    name:{es:'Nutria asiática de uñas pequeñas',en:'Asian small-clawed otter',de:'Zwergotter'},
+    fact:{es:'Es la nutria más pequeña del mundo. Usa las patas delanteras como manos para buscar cangrejos bajo las piedras.',en:'It’s the world’s smallest otter. It uses its front paws like hands to feel for crabs under stones.',de:'Er ist der kleinste Otter der Welt und tastet mit den Vorderpfoten wie mit Händen unter Steinen nach Krabben.'},
+    habitat:{es:'Ríos, manglares, arrozales y humedales',en:'Rivers, mangroves, rice paddies and wetlands',de:'Flüsse, Mangroven, Reisfelder und Feuchtgebiete'},
+    diet:{es:'Cangrejos, moluscos, ranas y peces pequeños',en:'Crabs, molluscs, frogs and small fish',de:'Krabben, Weichtiere, Frösche und kleine Fische'},
+    size:{es:'Unos 90 cm con la cola',en:'About 90 cm including tail',de:'Etwa 90 cm mit Schwanz'},
+    dist:{es:'Sur y sudeste de Asia',en:'South and Southeast Asia',de:'Süd- und Südostasien'},
+    threats:{es:'Pérdida de humedales, contaminación y tráfico ilegal de mascotas',en:'Wetland loss, pollution and the illegal pet trade',de:'Verlust von Feuchtgebieten, Verschmutzung und illegaler Heimtierhandel'}},
+  {id:'raya', tank:'rayas', img:'raya.jpg', sci:'Raja clavata', iucn:'NT', active:true,
+    name:{es:'Raya de clavos',en:'Thornback ray',de:'Nagelrochen'},
+    fact:{es:'Su lomo está cubierto de pequeñas espinas con forma de clavo, de ahí su nombre. Sus huevos van en cápsulas llamadas «bolsas de sirena».',en:'Its back is covered in small nail-like thorns, hence the name. Its eggs come in capsules known as “mermaid’s purses”.',de:'Ihr Rücken ist mit kleinen, nagelartigen Dornen besetzt – daher der Name. Ihre Eier liegen in Kapseln, den „Nixentäschchen“.'},
+    habitat:{es:'Fondos de arena, fango y grava',en:'Sandy, muddy and gravel seabeds',de:'Sand-, Schlick- und Kiesböden'},
+    diet:{es:'Cangrejos, gambas y peces de fondo',en:'Crabs, shrimp and bottom-dwelling fish',de:'Krabben, Garnelen und Bodenfische'},
+    size:{es:'Hasta 1 m',en:'Up to 1 m',de:'Bis 1 m'},
+    dist:{es:'Atlántico oriental y Mediterráneo',en:'Eastern Atlantic and Mediterranean',de:'Ostatlantik und Mittelmeer'},
+    threats:{es:'Pesca de arrastre',en:'Bottom trawling',de:'Grundschleppnetzfischerei'}},
+  {id:'medusa', tank:'biolum', img:'medusa.jpg', sci:'Pelagia noctiluca', iucn:'NE', active:true,
+    name:{es:'Medusa luminiscente',en:'Mauve stinger',de:'Leuchtqualle'},
+    fact:{es:'Cuando algo la roza, emite destellos de luz. Su nombre, noctiluca, significa «que brilla de noche».',en:'When something brushes against it, it gives off flashes of light. Its name, noctiluca, means “shining by night”.',de:'Wird sie berührt, sendet sie Lichtblitze aus. Ihr Name noctiluca bedeutet „die bei Nacht leuchtet“.'},
+    habitat:{es:'Mar abierto, cerca de la superficie',en:'Open sea, near the surface',de:'Offenes Meer, nahe der Oberfläche'},
+    diet:{es:'Plancton, huevos y larvas de peces',en:'Plankton, fish eggs and larvae',de:'Plankton, Fischeier und -larven'},
+    size:{es:'Campana de hasta 10 cm',en:'Bell up to 10 cm',de:'Schirm bis 10 cm'},
+    dist:{es:'Mediterráneo y mares templados y cálidos',en:'Mediterranean and warm and temperate seas',de:'Mittelmeer sowie warme und gemäßigte Meere'},
+    threats:{es:'Sin amenazas conocidas',en:'No known threats',de:'Keine bekannten Bedrohungen'}}
+];
+
+/* La ficha que "genera la IA" en la demo */
+const AI_TEMPLATE = {id:'morena', img:'morena.jpg', sci:'Muraena helena', iucn:'LC',
+  name:{es:'Morena mediterránea',en:'Mediterranean moray',de:'Mittelmeer-Muräne'},
+  fact:{es:'Abre y cierra la boca sin parar, pero no es una amenaza: así hace pasar agua por las branquias para respirar.',en:'It constantly opens and closes its mouth – not a threat, just how it pumps water over its gills to breathe.',de:'Sie öffnet und schließt ständig das Maul – keine Drohung, so pumpt sie Wasser über ihre Kiemen zum Atmen.'},
+  habitat:{es:'Grietas y cuevas de fondos rocosos',en:'Crevices and caves on rocky seabeds',de:'Spalten und Höhlen auf Felsgrund'},
+  diet:{es:'Peces, pulpos, calamares y crustáceos',en:'Fish, octopus, squid and crustaceans',de:'Fische, Kraken, Kalmare und Krebstiere'},
+  size:{es:'Hasta 1,5 m',en:'Up to 1.5 m',de:'Bis 1,5 m'},
+  dist:{es:'Mediterráneo y Atlántico oriental',en:'Mediterranean and eastern Atlantic',de:'Mittelmeer und Ostatlantik'},
+  threats:{es:'Pesca y deterioro de los fondos rocosos',en:'Fishing and damage to rocky seabeds',de:'Fischerei und Schädigung felsiger Meeresböden'}};
+
+const ALL = [0,1,2,3,4,5,6];
+const FEEDINGS = [
+  {id:'nutrias', kind:'feed', tank:'nutrias', species:['nutria'], times:['11:15','13:00','17:00'], days:ALL,
+    title:{es:'Alimentación de las nutrias',en:'Otter feeding',de:'Otter-Fütterung'}},
+  {id:'encuentros', kind:'activity', tank:null, species:[], times:['11:45','13:20','15:30','17:20'], days:ALL,
+    title:{es:'Encuentro interactivo',en:'Interactive encounter',de:'Interaktive Begegnung'},
+    where:{es:'Pregunta a nuestro equipo',en:'Ask our team',de:'Frag unser Team'}},
+  {id:'tiburones', kind:'feed', tank:'jurasico', species:['puntas-negras','tiburon-cebra','tortuga-verde'], times:['14:00'], days:[2,4,6,0],
+    title:{es:'Alimentación de tiburones y tortuga',en:'Shark & turtle feeding',de:'Hai- & Schildkröten-Fütterung'}},
+  {id:'pulpo', kind:'feed', tank:'mediterraneo', species:['pulpo'], times:['14:00'], days:[1,3,5],
+    title:{es:'Alimentación del pulpo',en:'Octopus feeding',de:'Kraken-Fütterung'}},
+  {id:'caballitos', kind:'feed', tank:'mediterraneo', species:['caballito'], times:['14:30'], days:ALL,
+    title:{es:'Alimentación de los caballitos de mar',en:'Seahorse feeding',de:'Seepferdchen-Fütterung'}},
+  {id:'rayas', kind:'talk', tank:'rayas', species:['raya'], times:['16:00'], days:[1,3,5],
+    title:{es:'Charla de las rayas',en:'Ray talk',de:'Rochen-Vortrag'}}
+];
+
+const IUCN = {EX:['#000','#fff'],EW:['#542344','#fff'],CR:['#d81e05','#fff'],EN:['#fc7f3f','#1a0d00'],VU:['#f9e814','#1a1a00'],NT:['#cce226','#1a1a00'],LC:['#60c659','#062006'],NE:['#8a99a8','#fff']};
+const IUCN_ORDER = ['EX','EW','CR','EN','VU','NT','LC'];
+
+const UI = {
+  es:{speciesN:'{n} especies en este tanque',species1:'1 especie en este tanque',tapHint:'Toca un animal para conocerlo',
+    nextLabel:'Próxima alimentación',nextAct:'Próxima actividad',nowLabel:'¡Está pasando ahora!',nowShort:'¡Ahora!',inMin:'en {n} min',inHM:'en {h} h {m} min',
+    hereTank:'Aquí, en este tanque',noMore:'Por hoy no quedan más alimentaciones. ¡Vuelve mañana!',program:'Programa de hoy',allSpecies:'Todas las especies',
+    fact:'Dato curioso',habitat:'Hábitat',diet:'Alimentación',size:'Tamaño máximo',dist:'Dónde vive',threats:'Amenazas',iucn:'Conservación (UICN)',
+    whenEats:'Cuándo verlo',noFeed:'Sin alimentación en público',today:'Hoy',done:'Hecha',delayed:'Retrasada {n} min',cancelled:'Cancelada hoy',
+    every:'Todos los días',notToday:'Hoy no',offline:'Sin conexión · funcionando con los datos guardados',idle:'Volviendo al inicio…',
+    emptyTank:'Ahora mismo no hay fichas en este tanque.',nowMarker:'Ahora',tapClose:'Toca para cerrar',goThere:'Sigue las indicaciones',startsNow:'¡Empieza ahora!',
+    here:'Aquí',photo:'Foto',and:' y ',
+    iucnN:{EX:'Extinta',EW:'Extinta en estado silvestre',CR:'En peligro crítico',EN:'En peligro',VU:'Vulnerable',NT:'Casi amenazada',LC:'Preocupación menor',NE:'No evaluada'},
+    days:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],loc:'es-ES'},
+  en:{speciesN:'{n} species in this tank',species1:'1 species in this tank',tapHint:'Tap an animal to meet it',
+    nextLabel:'Next feeding',nextAct:'Next activity',nowLabel:'Happening now!',nowShort:'Now!',inMin:'in {n} min',inHM:'in {h} h {m} min',
+    hereTank:'Right here, at this tank',noMore:'No more feedings today. Come back tomorrow!',program:'Today’s programme',allSpecies:'All species',
+    fact:'Fun fact',habitat:'Habitat',diet:'Diet',size:'Maximum size',dist:'Where it lives',threats:'Threats',iucn:'Conservation (IUCN)',
+    whenEats:'When to see it',noFeed:'No public feeding',today:'Today',done:'Done',delayed:'Delayed {n} min',cancelled:'Cancelled today',
+    every:'Every day',notToday:'Not today',offline:'Offline · running on saved data',idle:'Returning to start…',
+    emptyTank:'No species to show in this tank right now.',nowMarker:'Now',tapClose:'Tap to close',goThere:'Follow the signs',startsNow:'Starting now!',
+    here:'Here',photo:'Photo',and:' & ',
+    iucnN:{EX:'Extinct',EW:'Extinct in the wild',CR:'Critically endangered',EN:'Endangered',VU:'Vulnerable',NT:'Near threatened',LC:'Least concern',NE:'Not evaluated'},
+    days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],loc:'en-GB'},
+  de:{speciesN:'{n} Arten in diesem Becken',species1:'1 Art in diesem Becken',tapHint:'Tippe auf ein Tier, um es kennenzulernen',
+    nextLabel:'Nächste Fütterung',nextAct:'Nächste Aktivität',nowLabel:'Läuft gerade!',nowShort:'Jetzt!',inMin:'in {n} Min.',inHM:'in {h} Std. {m} Min.',
+    hereTank:'Genau hier, an diesem Becken',noMore:'Heute keine Fütterungen mehr. Komm morgen wieder!',program:'Heutiges Programm',allSpecies:'Alle Arten',
+    fact:'Wusstest du?',habitat:'Lebensraum',diet:'Nahrung',size:'Maximale Größe',dist:'Verbreitung',threats:'Bedrohungen',iucn:'Schutzstatus (IUCN)',
+    whenEats:'Wann zu sehen',noFeed:'Keine öffentliche Fütterung',today:'Heute',done:'Erledigt',delayed:'Verschoben um {n} Min.',cancelled:'Heute abgesagt',
+    every:'Täglich',notToday:'Heute nicht',offline:'Offline · läuft mit gespeicherten Daten',idle:'Zurück zum Start…',
+    emptyTank:'Derzeit keine Arten in diesem Becken.',nowMarker:'Jetzt',tapClose:'Zum Schließen tippen',goThere:'Folge der Beschilderung',startsNow:'Jetzt geht es los!',
+    here:'Hier',photo:'Foto',and:' & ',
+    iucnN:{EX:'Ausgestorben',EW:'In der Natur ausgestorben',CR:'Vom Aussterben bedroht',EN:'Stark gefährdet',VU:'Gefährdet',NT:'Potenziell gefährdet',LC:'Nicht gefährdet',NE:'Nicht beurteilt'},
+    days:['So','Mo','Di','Mi','Do','Fr','Sa'],loc:'de-DE'}
+};
+
+/* =========================================================
+   ICONOS
+   ========================================================= */
+const ICONS = {
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  hand:'<path d="M9 11V5a1.5 1.5 0 0 1 3 0v5"/><path d="M12 10V8.5a1.5 1.5 0 0 1 3 0V11"/><path d="M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.5 14a1.5 1.5 0 0 1 2.5-1.7L9 15"/>',
+  left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  wifiOff:'<path d="M2 8.5a15 15 0 0 1 5-3M22 8.5A15 15 0 0 0 11 4.6M5.5 12a10 10 0 0 1 3-2M18.5 12a10 10 0 0 0-3.5-2.1M9 15.5a5 5 0 0 1 6 0M3 3l18 18"/><circle cx="12" cy="19" r="1"/>',
+  people:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5A5 5 0 0 1 21 19"/>',
+  wave:'<path d="M2 10c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M2 16c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>',
+  fish:'<path d="M3 12c3-4 8-5 12-3l4-3v12l-4-3c-4 2-9 1-12-3z"/><circle cx="8" cy="11" r=".8"/>',
+  ruler:'<path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+  alert:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>'
+};
+const svg = (n, s=36, w=2.2) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]}</svg>`;
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const clone = o => JSON.parse(JSON.stringify(o));
+const state = {
+  lang:'es', view:'home', spId:null, tank:'mediterraneo',
+  db:{species:clone(SPECIES), feedings:clone(FEEDINGS), overrides:{}, bajas:[], version:1},
+  offline:false, snapshot:null, snapAt:0, pending:0,
+  clock:{real:false, base:0, t0:0, speed:1},
+  stats:{'nutria':72,'pulpo':64,'tortuga-verde':57,'caballito':48,'puntas-negras':41,'medusa':38,'tiburon-cebra':33,'raya':29},
+  tab:'feed', idleSec:45, lastTouch:performance.now(), email:'pantallas@proveedor-ejemplo.com',
+  seenNow:new Set(), takeoverUntil:0,
+  ai:{phase:'idle', name:'', tank:'mediterraneo', reviewed:false, trLang:'en'}
+};
+(function initClock(){ const d = new Date(); d.setHours(13,52,0,0); state.clock.base = d.getTime(); state.clock.t0 = performance.now(); })();
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const U = () => UI[state.lang];
+const L = o => (o && (o[state.lang] ?? o.es)) || '';
+const T = (k, v) => { let s = U()[k] ?? UI.es[k]; if (v) for (const x in v) s = s.replace('{'+x+'}', v[x]); return s; };
+const tdb = () => state.offline ? state.snapshot : state.db;
+const tankById = id => TANKS.find(t => t.id === id);
+const pad = n => String(n).padStart(2,'0');
+const hm = ms => { const d = new Date(ms); return pad(d.getHours())+':'+pad(d.getMinutes()); };
+
+function nowMs(){ const c = state.clock; return c.real ? Date.now() : c.base + (performance.now() - c.t0) * c.speed; }
+function setSim(ms){ state.clock.base = ms; state.clock.t0 = performance.now(); state.clock.real = false; }
+
+function instancesFor(db, ms){
+  const d = new Date(ms), dow = d.getDay(), out = [];
+  for (const r of db.feedings){
+    if (r.suspended || !r.days.includes(dow)) continue;
+    for (const t of r.times){
+      const [h, m] = t.split(':').map(Number);
+      const s = new Date(d); s.setHours(h, m, 0, 0);
+      const id = r.id + '@' + t, ov = db.overrides[id] || {}, delay = ov.delay || 0;
+      const eff = s.getTime() + delay * 60000;
+      let phase;
+      if (ov.status === 'cancelled') phase = 'cancelled';
+      else if (ov.status === 'done') phase = 'done';
+      else if (ms < eff) phase = 'upcoming';
+      else if (ms < eff + 15 * 60000) phase = 'now';
+      else phase = 'past';
+      out.push({id, rule:r, time:t, delay, eff, phase});
+    }
+  }
+  return out.sort((a, b) => a.eff - b.eff || a.rule.id.localeCompare(b.rule.id));
+}
+function liveInfo(){
+  const ms = nowMs(), list = instancesFor(tdb(), ms);
+  const nows = list.filter(i => i.phase === 'now').sort((a, b) => (b.rule.tank === state.tank) - (a.rule.tank === state.tank));
+  const next = list.find(i => i.phase === 'upcoming');
+  return {ms, list, now:nows[0] || null, next:next || null};
+}
+function daysLabel(days){
+  if (days.length === 7) return T('every');
+  const names = [1,2,3,4,5,6,0].filter(d => days.includes(d)).map(d => U().days[d]);
+  return names.length > 1 ? names.slice(0, -1).join(', ') + U().and + names.at(-1) : names[0];
+}
+function speciesThumbs(rule, db){
+  const sp = rule.species.map(id => db.species.find(s => s.id === id)).filter(s => s && s.active);
+  if (!sp.length) return `<div class="ic">${svg(rule.kind === 'activity' ? 'people' : 'fish', 52)}</div>`;
+  return sp.slice(0, 2).map(s => `<img src="${IMG + s.img}" alt="">`).join('');
+}
+
+/* =========================================================
+   TÓTEM
+   ========================================================= */
+function visibleSpecies(){ return tdb().species.filter(s => s.tank === state.tank && s.active); }
+
+function liveHTML(kind){
+  const {ms, now, next} = liveInfo(), it = now || next, db = tdb();
+  if (!it) return `<div class="live ${kind} idle">${svg('clock', 44)}<div class="txt">${T('noMore')}</div></div>`;
+  const here = it.rule.tank && it.rule.tank === state.tank;
+  const mins = Math.max(0, Math.ceil((it.eff - ms) / 60000));
+  const mode = now ? 'now' : (mins <= 10 ? 'soon' : 'later');
+  const label = now ? T('nowLabel') : (it.rule.kind === 'feed' ? T('nextLabel') : T('nextAct'));
+  const big = now ? T('nowShort') : (mins < 60 ? T('inMin', {n:mins}) : hm(it.eff));
+  const sub = now ? hm(it.eff) : (mins < 60 ? hm(it.eff) : T('inHM', {h:Math.floor(mins/60), m:mins%60}));
+  const where = here ? `<span class="here-tag">${T('hereTank')}</span>`
+    : `${svg('pin', kind === 'strip' ? 24 : 30)} ${esc(it.rule.tank ? L(tankById(it.rule.tank).name) : L(it.rule.where))}`;
+  const delay = it.delay ? ` <span class="delay">${T('delayed', {n:it.delay})}</span>` : '';
+  return `<div class="live ${kind} ${mode}">
+    <div class="thumbs">${speciesThumbs(it.rule, db)}</div>
+    <div class="txt"><div class="lbl">${label}${delay}</div><div class="ttl">${esc(L(it.rule.title))}</div><div class="where">${where}</div></div>
+    <div class="when"><div class="big">${big}</div><div class="sub">${sub}</div></div>
+  </div>`;
+}
+
+function headHTML(){
+  return `<div class="t-head">
+    <div class="brand" data-lp="1">SEA LIFE<span>Benalmádena</span></div>
+    <div class="langs">${['es','en','de'].map(l => `<button data-act="lang" data-l="${l}" class="${state.lang === l ? 'on' : ''}">${l.toUpperCase()}</button>`).join('')}</div>
+  </div>`;
+}
+
+function homeHTML(){
+  const tank = tankById(state.tank), sp = visibleSpecies(), n = sp.length;
+  const cols = n <= 1 ? 1 : n <= 4 ? 2 : 3;
+  const ph = n <= 1 ? 720 : n <= 2 ? 560 : n <= 4 ? 290 : n <= 6 ? 250 : 160;
+  const cards = n ? sp.map(s => `<button class="card" data-act="sp" data-id="${s.id}">
+      <div class="ph" style="height:${ph}px;background-image:url('${IMG + s.img}');background-position:${s.pos || 'center'}"><span class="iucn-chip" style="background:${IUCN[s.iucn][0]};color:${IUCN[s.iucn][1]}">${s.iucn}</span></div>
+      <div class="cap"><div class="cn">${esc(L(s.name))}</div><div class="sn">${esc(s.sci)}</div></div>
+    </button>`).join('') : `<div class="empty">${T('emptyTank')}</div>`;
+  return `${headHTML()}
+    <div class="t-tank"><div class="eyebrow">${n === 1 ? T('species1') : T('speciesN', {n})}</div><h1>${esc(L(tank.name))}</h1><p>${esc(L(tank.desc))}</p></div>
+    <div class="grid c${cols}">${cards}</div>
+    ${n ? `<div class="hint">${svg('hand', 40)} ${T('tapHint')}</div>` : ''}
+    <div class="live-slot" data-kind="card-mode">${liveHTML('card-mode')}</div>
+    <button class="big-btn" data-act="agenda">${svg('cal', 40, 2.4)} ${T('program')}</button>`;
+}
+
+function feedBoxHTML(s){
+  const db = tdb(), rules = db.feedings.filter(r => r.species.includes(s.id) && !r.suspended);
+  if (!rules.length) return `<div class="k">${T('whenEats')}</div><div class="nofeed">${T('noFeed')}</div>`;
+  const today = instancesFor(db, nowMs());
+  return `<div class="k">${T('whenEats')}</div>` + rules.map(r => {
+    const inst = today.filter(i => i.rule.id === r.id);
+    const chips = inst.map(i => {
+      if (i.phase === 'cancelled') return `<span class="chip bad">${i.time} · ${T('cancelled')}</span>`;
+      if (i.phase === 'done' || i.phase === 'past') return `<span class="chip">${hm(i.eff)} ✓</span>`;
+      if (i.phase === 'now') return `<span class="chip ok">${T('nowShort')}</span>`;
+      if (i.delay) return `<span class="chip warn">${hm(i.eff)} · ${T('delayed', {n:i.delay})}</span>`;
+      return `<span class="chip ok">${T('today')} ${hm(i.eff)}</span>`;
+    }).join('') || `<span class="chip">${T('notToday')}</span>`;
+    return `<div class="feed-line">${rules.length > 1 || r.kind !== 'feed' ? `<div class="ft">${esc(L(r.title))}</div>` : ''}
+      <div class="tm">${r.times.join(' · ')}</div><div class="dy">${daysLabel(r.days)}</div><div class="chips">${chips}</div></div>`;
+  }).join('');
+}
+
+function speciesHTML(){
+  const sp = visibleSpecies(), idx = sp.findIndex(x => x.id === state.spId), s = sp[idx], tank = tankById(s.tank);
+  const cr = CREDITS[s.id];
+  const scale = IUCN_ORDER.map(c => `<span class="${c === s.iucn ? 'on' : ''}" style="background:${IUCN[c][0]};color:${IUCN[c][1]}">${c}</span>`).join('');
+  const f = (ico, k, v) => `<div class="fi"><div class="ico">${svg(ico, 32)}</div><div><div class="k">${T(k)}</div><div class="v">${esc(L(v))}</div></div></div>`;
+  return `<div class="sp-photo" style="background-image:url('${IMG + s.img}');background-position:${s.pos || 'center'}"></div>
+    ${cr ? `<div class="credit">${T('photo')}: ${esc(cr.a)} · ${esc(cr.l)} · Wikimedia Commons</div>` : ''}
+    <div class="sp-top"><button class="pill-btn" data-act="home">${svg('grid', 30)} ${T('allSpecies')}</button><div class="counter">${idx + 1} / ${sp.length}</div></div>
+    <div class="sp-body">
+      <div class="eyebrow">${esc(L(tank.name))}</div>
+      <h1>${esc(L(s.name))}</h1><div class="sci">${esc(s.sci)}</div>
+      <div class="fact"><div class="k">${T('fact')}</div><p>${esc(L(s.fact))}</p></div>
+      <div class="fgrid">${f('wave','habitat',s.habitat)}${f('fish','diet',s.diet)}${f('ruler','size',s.size)}${f('globe','dist',s.dist)}${f('alert','threats',s.threats)}</div>
+      <div class="duo">
+        <div class="box"><div class="k">${T('iucn')}</div><div class="scale">${scale}</div><div class="iucn-name">${U().iucnN[s.iucn]}${s.iucn === 'NE' ? '' : ` (${s.iucn})`}</div></div>
+        <div class="box">${feedBoxHTML(s)}</div>
+      </div>
+      <div class="sp-live live-slot" data-kind="strip">${liveHTML('strip')}</div>
+      <div class="sp-nav">
+        <button class="round" data-act="prev" ${sp.length < 2 ? 'style="visibility:hidden"' : ''}>${svg('left', 60, 2.6)}</button>
+        <div class="langs">${['es','en','de'].map(l => `<button data-act="lang" data-l="${l}" class="${state.lang === l ? 'on' : ''}">${l.toUpperCase()}</button>`).join('')}</div>
+        <button class="round" data-act="next" ${sp.length < 2 ? 'style="visibility:hidden"' : ''}>${svg('right', 60, 2.6)}</button>
+      </div>
+    </div>`;
+}
+
+function agendaListHTML(){
+  const {ms, list} = liveInfo(), db = tdb();
+  let html = '', marked = false;
+  for (const i of list){
+    if (!marked && (i.phase === 'upcoming' || i.phase === 'now')){ html += `<div class="nowmark">${T('nowMarker')} · ${hm(ms)} <i></i></div>`; marked = true; }
+    const mins = Math.ceil((i.eff - ms) / 60000);
+    const cls = i.phase === 'upcoming' && mins <= 10 ? 'soon' : i.phase;
+    const here = i.rule.tank && i.rule.tank === state.tank;
+    let chip = '';
+    if (i.phase === 'now') chip = `<span class="chip ok">${T('nowShort')}</span>`;
+    else if (i.phase === 'cancelled') chip = `<span class="chip bad">${T('cancelled')}</span>`;
+    else if (i.phase === 'done') chip = `<span class="chip">${T('done')} ✓</span>`;
+    else if (i.phase === 'upcoming' && mins < 60) chip = `<span class="chip ${mins <= 10 ? 'warn' : ''}">${T('inMin', {n:mins})}</span>`;
+    const where = i.rule.tank ? L(tankById(i.rule.tank).name) : L(i.rule.where);
+    html += `<div class="ti ${cls} ${here ? 'here' : ''}">
+      <div class="t">${hm(i.eff)}${i.delay ? `<s>${i.time}</s>` : ''}</div>
+      <div><div class="tt" data-here="${T('here')}">${esc(L(i.rule.title))}</div><div class="wh">${svg('pin', 24)} ${esc(where)}</div></div>
+      <div>${chip}</div></div>`;
+  }
+  if (!marked) html += `<div class="nowmark">${T('nowMarker')} · ${hm(ms)} <i></i></div><div class="ti"><div></div><div class="tt">${T('noMore')}</div><div></div></div>`;
+  return html;
+}
+function agendaHTML(){
+  const date = new Intl.DateTimeFormat(U().loc, {weekday:'long', day:'numeric', month:'long'}).format(new Date(nowMs()));
+  return `${headHTML()}
+    <div class="ag-head" style="margin-top:40px"><div class="eyebrow">SEA LIFE Benalmádena</div><h1>${T('program')}</h1><div class="date">${date}</div></div>
+    <div class="tl" id="tl">${agendaListHTML()}</div>
+    <button class="big-btn" data-act="home">${svg('grid', 38)} ${T('allSpecies')}</button>`;
+}
+
+function setupHTML(){
+  const db = tdb();
+  return `<div class="setup">
+    <div class="eyebrow">Solo personal del acuario</div>
+    <h1>¿Junto a qué tanque está este tótem?</h1>
+    <p>Se elige una vez y queda guardado en el panel, no en una cookie del navegador. También se cambia desde el panel de gestión.</p>
+    ${TANKS.map(t => { const n = db.species.filter(s => s.tank === t.id && s.active).length;
+      return `<button class="tank-opt ${t.id === state.tank ? 'on' : ''}" style="--tc:${t.color}" data-act="settank" data-id="${t.id}"><i></i><div>${esc(t.name.es)}<small>${n} ${n === 1 ? 'especie activa' : 'especies activas'}</small></div></button>`; }).join('')}
+  </div>`;
+}
+
+let lastLiveKey = '';
+function renderTotem(anim){
+  const v = $('#view');
+  if (state.view === 'species' && !visibleSpecies().some(s => s.id === state.spId)) state.view = 'home';
+  $('#screen').style.setProperty('--tc', tankById(state.tank).color);
+  v.innerHTML = state.view === 'home' ? homeHTML() : state.view === 'species' ? speciesHTML() : state.view === 'agenda' ? agendaHTML() : setupHTML();
+  if (anim){ v.classList.remove('anim'); void v.offsetWidth; v.classList.add('anim'); state.lastTouch = performance.now(); }
+  updateOffline();
+  lastLiveKey = liveKey();
+}
+function liveKey(){
+  const {ms, list, now, next} = liveInfo(), it = now || next;
+  const mins = it ? Math.ceil((it.eff - ms) / 60000) : -1;
+  return [state.view, state.lang, state.tank, tdb().version, list.map(i => i.phase[0]).join(''), it ? it.id : '', mins, state.view === 'agenda' ? hm(ms) : ''].join('|');
+}
+function refreshLive(){
+  document.querySelectorAll('.live-slot').forEach(el => el.innerHTML = liveHTML(el.dataset.kind));
+  const tl = $('#tl'); if (tl) tl.innerHTML = agendaListHTML();
+  if (state.view === 'species'){ const box = document.querySelectorAll('.duo .box')[1]; const s = visibleSpecies().find(x => x.id === state.spId); if (box && s) box.innerHTML = feedBoxHTML(s); }
+}
+function updateOffline(){
+  const el = $('#offline');
+  el.classList.toggle('on', state.offline);
+  if (state.offline) el.innerHTML = `${svg('wifiOff', 26)} ${T('offline')} (${hm(state.snapAt)})`;
+}
+
+function goHome(resetLang){ if (resetLang) state.lang = 'es'; state.view = 'home'; renderTotem(true); }
+function openSpecies(id){ state.spId = id; state.view = 'species'; state.stats[id] = (state.stats[id] || 0) + 1; renderTotem(true); if (state.tab === 'system') renderAdmin(); }
+
+function showTakeover(i){
+  const db = tdb(), here = i.rule.tank && i.rule.tank === state.tank;
+  const sp = i.rule.species.map(id => db.species.find(s => s.id === id)).find(s => s && s.active);
+  const where = here ? `<span class="here-tag">${T('hereTank')}</span>` : `${svg('pin', 40)} ${esc(i.rule.tank ? L(tankById(i.rule.tank).name) : L(i.rule.where))}`;
+  $('#takeover').innerHTML = `<div class="to-ring">${sp ? `<img src="${IMG + sp.img}" alt="">` : `<div class="ic">${svg('people', 160, 1.6)}</div>`}</div>
+    <div class="to-now">${T('startsNow')}</div><div class="to-title">${esc(L(i.rule.title))}</div>
+    <div class="to-where">${where}</div>${here ? '' : `<div class="to-sub">${T('goThere')}</div>`}
+    <div class="to-close">${T('tapClose')}</div>`;
+  $('#takeover').classList.add('on');
+  state.takeoverUntil = performance.now() + 12000;
+}
+function hideTakeover(){ $('#takeover').classList.remove('on'); state.takeoverUntil = 0; }
+
+/* interacción con el tótem */
+$('#screen').addEventListener('pointerdown', () => { state.lastTouch = performance.now(); $('#idlebar').classList.remove('on'); });
+$('#screen').addEventListener('click', e => {
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  const act = a.dataset.act, sp = visibleSpecies();
+  if (act === 'closeTakeover') return hideTakeover();
+  if (act === 'lang'){ state.lang = a.dataset.l; renderTotem(false); }
+  else if (act === 'sp') openSpecies(a.dataset.id);
+  else if (act === 'home') goHome(false);
+  else if (act === 'agenda'){ state.view = 'agenda'; renderTotem(true); }
+  else if (act === 'prev' || act === 'next'){
+    const i = sp.findIndex(s => s.id === state.spId), n = sp.length;
+    openSpecies(sp[(i + (act === 'next' ? 1 : -1) + n) % n].id);
+  }
+  else if (act === 'settank'){ state.tank = a.dataset.id; goHome(false); renderAdmin(); toast(`Tótem vinculado a «${tankById(state.tank).name.es}»`, 'ok'); }
+});
+let lpTimer = null;
+$('#screen').addEventListener('pointerdown', e => { if (e.target.closest('[data-lp]')) lpTimer = setTimeout(() => { state.view = 'setup'; renderTotem(true); }, 1200); });
+['pointerup','pointerleave','pointercancel'].forEach(ev => $('#screen').addEventListener(ev, () => clearTimeout(lpTimer)));
+
+/* burbujas */
+(function bubbles(){
+  let h = '';
+  for (let i = 0; i < 14; i++){
+    const s = 10 + Math.random() * 34, left = Math.random() * 1040, dur = 14 + Math.random() * 16, del = -Math.random() * dur;
+    h += `<div class="bub" style="width:${s}px;height:${s}px;left:${left}px;animation-duration:${dur}s;animation-delay:${del}s"></div>`;
+  }
+  $('#bubbles').innerHTML = h;
+})();
+
+/* =========================================================
+   PANEL DE GESTIÓN
+   ========================================================= */
+function mutate(fn, msg, kind){
+  fn(state.db); state.db.version++;
+  if (state.offline){ state.pending++; toast((msg ? msg + '<br>' : '') + '<b>El tótem está sin conexión:</b> lo recibirá en cuanto vuelva el wifi.', 'warn'); }
+  else { renderTotem(false); if (msg) toast(msg + ' <span style="opacity:.7">Ya se ve en los tótems.</span>', kind || 'ok'); }
+  renderAdmin();
+}
+
+function renderAdmin(){
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === state.tab));
+  const el = $('#adminBody');
+  el.innerHTML = (state.offline ? `<div class="pending">${svg('wifiOff', 18)} Tótem sin conexión · ${state.pending} ${state.pending === 1 ? 'cambio pendiente' : 'cambios pendientes'} de enviar</div>` : '')
+    + (state.tab === 'feed' ? adminFeed() : state.tab === 'species' ? adminSpecies() : state.tab === 'ai' ? adminAI() : adminSystem());
+}
+
+function adminFeed(){
+  const ms = nowMs(), list = instancesFor(state.db, ms);
+  const firstUp = (list.find(i => i.phase === 'upcoming') || {}).id;
+  const date = new Intl.DateTimeFormat('es-ES', {weekday:'long', day:'numeric', month:'long'}).format(new Date(ms));
+  const rows = list.map(i => {
+    const tank = i.rule.tank ? tankById(i.rule.tank) : null, mins = Math.ceil((i.eff - ms) / 60000);
+    const ov = state.db.overrides[i.id];
+    let badge = '';
+    if (i.phase === 'now') badge = '<span class="badge now">En curso</span>';
+    else if (i.phase === 'done') badge = '<span class="badge done">Hecha</span>';
+    else if (i.phase === 'cancelled') badge = '<span class="badge cancel">Cancelada</span>';
+    else if (i.phase === 'past') badge = '<span class="badge">Pasada</span>';
+    else badge = `<span class="badge ${mins <= 10 ? 'soon' : ''}">${i.id === firstUp ? 'Próxima' : 'Pendiente'}</span>`;
+    if (i.delay) badge += ` <span class="badge delay">+${i.delay} min</span>`;
+    const canAct = i.phase === 'upcoming' || i.phase === 'now';
+    return `<div class="arow ${i.phase === 'now' ? 'now' : ''}">
+      <div class="tm">${hm(i.eff)}${i.delay ? `<s>${i.time}</s>` : ''}</div>
+      <div><div class="nm">${esc(i.rule.title.es)}</div>
+        <div class="meta">${tank ? `<span class="dot" style="--tc:${tank.color}"></span>${esc(tank.name.es)}` : 'Varios puntos'} · ${badge}</div>
+        <div class="acts">
+          ${canAct ? `<button class="btn" data-aact="done" data-id="${i.id}">${svg('check', 13, 3)} Hecha</button>
+          <button class="btn" data-aact="delay" data-id="${i.id}">+15 min</button>
+          <button class="btn danger" data-aact="cancel" data-id="${i.id}">Cancelar</button>` : ''}
+          ${ov ? `<button class="btn" data-aact="reset" data-id="${i.id}">Deshacer</button>` : ''}
+        </div></div></div>`;
+  }).join('');
+  return `<h3>Alimentaciones de hoy</h3><p class="sub" style="text-transform:none">${date[0].toUpperCase() + date.slice(1)}. El cuidador la marca desde el móvil y <b>todos los tótems</b> muestran al momento la cuenta atrás, el retraso o la cancelación.</p>
+    ${rows || '<p class="sub">Hoy no hay alimentaciones programadas.</p>'}
+    <div class="note">Horarios tomados de vuestra web (22-09-2026), con sus días de la semana. La charla de rayas no tiene hora publicada: aquí va a las 16:00 como ejemplo.<br><b>Para verlo en marcha:</b> pulsa «Acelerar ×60» arriba (1 segundo = 1 minuto) o «+10 min».</div>`;
+}
+
+function adminSpecies(){
+  let h = '<h3>Fichas de especies</h3><p class="sub">El interruptor oculta una ficha temporalmente (enfermedad, cuarentena…). La <b>baja</b> la retira, la deja registrada y avisa sola a quien haga falta.</p>';
+  for (const t of TANKS){
+    const sp = state.db.species.filter(s => s.tank === t.id);
+    if (!sp.length) continue;
+    h += `<div class="tank-h"><span class="dot" style="--tc:${t.color}"></span>${esc(t.name.es)}</div>`;
+    h += sp.map(s => `<div class="srow ${s.active ? '' : 'off'}">
+      <img src="${IMG + s.img}" alt="">
+      <div><div class="nm">${esc(s.name.es)}</div><div class="sc">${esc(s.sci)}</div>
+        ${s.retired ? `<div class="retired">Baja · ${esc(s.retired.reason)} · ${s.retired.at}</div>` : ''}</div>
+      <div class="scol">${s.retired
+        ? `<button class="btn" data-aact="reactivate" data-id="${s.id}">Reactivar</button>`
+        : `<label class="sw" title="Visible en los tótems"><input type="checkbox" data-aact="toggle" data-id="${s.id}" ${s.active ? 'checked' : ''}><span></span></label>
+           <button class="btn danger" data-aact="baja" data-id="${s.id}">Baja</button>`}</div>
+    </div>`).join('');
+  }
+  h += `<div class="sect"><h3>Registro de bajas</h3>${state.db.bajas.length ? state.db.bajas.map(b => `<div class="log"><b>${esc(b.name)}</b> · ${esc(b.reason)}<div class="when">${b.at} · ${b.notified ? 'aviso enviado a ' + esc(b.notified) : 'sin aviso'}${b.note ? ' · ' + esc(b.note) : ''}</div></div>`).join('') : '<p class="sub">Todavía no hay bajas registradas.</p>'}</div>`;
+  return h;
+}
+
+function openBaja(id){
+  const s = state.db.species.find(x => x.id === id);
+  const soleRules = state.db.feedings.filter(r => !r.suspended && r.species.length === 1 && r.species[0] === id);
+  $('#modal').innerHTML = `<h3>Dar de baja: ${esc(s.name.es)}</h3><p class="sub">${esc(tankById(s.tank).name.es)} · se retira de los tótems al momento.</p>
+    <div class="field"><label>Motivo</label><div class="radio">
+      ${['Fallecimiento','Traslado a otro centro','Otro'].map((r, i) => `<label><input type="radio" name="reason" value="${r}" ${i === 0 ? 'checked' : ''}> ${r}</label>`).join('')}
+    </div></div>
+    <div class="field"><label>Nota interna (opcional)</label><textarea id="bajaNote" rows="2" placeholder="Ej.: revisión veterinaria del lunes"></textarea></div>
+    ${soleRules.map(r => `<label class="check"><input type="checkbox" class="bajaRule" value="${r.id}" checked> Quitar también «${esc(r.title.es)}» del programa</label>`).join('')}
+    <label class="check"><input type="checkbox" id="bajaNotify" checked> Avisar por email a ${esc(state.email)}</label>
+    <div class="foot"><button class="btn" data-aact="closeModal">Cancelar</button><button class="btn primary lg" data-aact="confirmBaja" data-id="${id}">Confirmar baja</button></div>`;
+  $('#modalBg').classList.add('on');
+}
+function confirmBaja(id){
+  const reason = document.querySelector('input[name=reason]:checked').value;
+  const note = $('#bajaNote').value.trim(), notify = $('#bajaNotify').checked;
+  const rules = [...document.querySelectorAll('.bajaRule:checked')].map(x => x.value);
+  const at = hm(nowMs());
+  $('#modalBg').classList.remove('on');
+  mutate(db => {
+    const s = db.species.find(x => x.id === id);
+    s.active = false; s.retired = {reason, at, rules};
+    rules.forEach(rid => db.feedings.find(r => r.id === rid).suspended = true);
+    db.bajas.unshift({name:s.name.es, reason, at, note, notified:notify ? state.email : ''});
+  }, `Ficha retirada de los tótems${rules.length ? ' y del programa' : ''}.${notify ? '<br>Aviso enviado a ' + esc(state.email) + '.' : ''}`);
+}
+
+/* ---- ficha nueva con IA (en la demo, preparada para Muraena helena) ---- */
+const AI_FIELDS = [['name','Nombre común',1],['fact','Dato curioso',3],['habitat','Hábitat',1],['diet','Alimentación',1],['size','Tamaño máximo',1],['dist','Distribución',1],['threats','Amenazas',2]];
+function adminAI(){
+  const ai = state.ai;
+  const tankOpts = TANKS.map(t => `<option value="${t.id}" ${ai.tank === t.id ? 'selected' : ''}>${esc(t.name.es)}</option>`).join('');
+  let h = `<h3>Nueva ficha con IA</h3><p class="sub">Escribe el nombre científico. La IA redacta la ficha, consulta el estado de conservación y la traduce. <b>Un acuarista la revisa antes de publicarla</b>: nada sale sin supervisión.</p>
+    <div class="field"><label>Nombre científico</label><div class="inline"><input type="text" id="aiName" value="${esc(ai.name)}" placeholder="Ej.: Muraena helena" ${ai.phase === 'running' ? 'disabled' : ''}>
+      <button class="btn primary lg" data-aact="aiGo" ${ai.phase === 'running' ? 'disabled' : ''}>Generar</button></div>
+      <div class="try">Prueba con <button data-aact="aiTry">Muraena helena</button> (morena mediterránea)</div></div>
+    <div class="field"><label>Tanque</label><select id="aiTank" ${ai.phase === 'running' ? 'disabled' : ''}>${tankOpts}</select></div>`;
+  if (ai.phase === 'unknown') h += `<div class="note">En esta demo el borrador está preparado solo para <b>Muraena helena</b>. En el sistema real funciona con cualquier especie.</div>`;
+  if (ai.phase === 'running' || ai.phase === 'ready'){
+    const st = ['Identificando la especie','Consultando el estado de conservación (UICN)','Redactando la ficha en español','Traduciendo a inglés y alemán'];
+    h += `<ul class="steps">${st.map((s, i) => `<li id="aiStep${i}" class="${ai.phase === 'ready' ? 'ok' : ''}"><i>${ai.phase === 'ready' ? svg('check', 11, 3.5) : ''}</i>${s}</li>`).join('')}</ul>
+      <div class="aiprev"><img src="${IMG + AI_TEMPLATE.img}" alt=""><div class="sub" style="margin:0">Foto de ejemplo. En el sistema real subís la vuestra desde el móvil.<br><b>UICN:</b> <span id="aiIucn">${ai.phase === 'ready' ? 'Preocupación menor (LC)' : '…'}</span></div></div>
+      ${AI_FIELDS.map(([k, lbl, rows]) => `<div class="field"><label>${lbl}</label><textarea id="aiF_${k}" rows="${rows}">${ai.phase === 'ready' ? esc(ai.fields[k]) : ''}</textarea></div>`).join('')}`;
+    if (ai.phase === 'ready'){
+      const t = AI_TEMPLATE, l = ai.trLang;
+      h += `<div class="tr"><div class="th"><button data-aact="aiTr" data-l="en" class="${l === 'en' ? 'on' : ''}">English</button><button data-aact="aiTr" data-l="de" class="${l === 'de' ? 'on' : ''}">Deutsch</button></div>
+        <div class="tb"><b>${esc(t.name[l])}</b><br>${esc(t.fact[l])}<br><span style="color:var(--muted)">${esc(t.habitat[l])} · ${esc(t.diet[l])} · ${esc(t.size[l])}</span></div></div>
+        <label class="check"><input type="checkbox" data-aact="aiRev" ${ai.reviewed ? 'checked' : ''}> Revisado por un acuarista</label>
+        <div style="margin-top:12px"><button class="btn primary lg" data-aact="aiPublish" ${ai.reviewed ? '' : 'disabled'}>Publicar en los tótems</button></div>`;
+    }
+  }
+  if (ai.phase === 'published'){
+    h += `<div class="okbox" style="margin-top:16px"><b>Publicada.</b> La morena ya está en los tótems de «${esc(tankById(ai.tank).name.es)}», en español, inglés y alemán.</div>
+      <div class="acts" style="margin-top:10px"><button class="btn primary lg" data-aact="aiView">Verla en el tótem</button><button class="btn lg" data-aact="aiReset">Crear otra</button></div>`;
+  }
+  return h;
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function runAI(){
+  const ai = state.ai;
+  ai.name = $('#aiName').value.trim(); ai.tank = $('#aiTank').value;
+  if (state.db.species.some(s => s.id === 'morena')){ toast('La morena ya está publicada. Pulsa «Crear otra» o dala de baja para repetir.', 'warn'); return; }
+  if (!/muraena\s+helena|morena/i.test(ai.name)){ ai.phase = 'unknown'; renderAdmin(); return; }
+  ai.phase = 'running'; ai.reviewed = false; ai.fields = {}; renderAdmin();
+  const step = (i, cls) => { const el = $('#aiStep' + i); if (el){ el.className = cls; if (cls === 'ok') el.querySelector('i').innerHTML = svg('check', 11, 3.5); } };
+  step(0, 'run'); await sleep(900); step(0, 'ok');
+  step(1, 'run'); await sleep(900); step(1, 'ok'); $('#aiIucn').textContent = 'Preocupación menor (LC)';
+  step(2, 'run');
+  for (const [k] of AI_FIELDS){
+    const txt = AI_TEMPLATE[k].es, ta = $('#aiF_' + k);
+    for (let c = 0; c <= txt.length; c += 3){ if (!ta) break; ta.value = txt.slice(0, c); await sleep(12); }
+    if (ta) ta.value = txt;
+  }
+  step(2, 'ok'); step(3, 'run'); await sleep(1100); step(3, 'ok');
+  AI_FIELDS.forEach(([k]) => ai.fields[k] = $('#aiF_' + k) ? $('#aiF_' + k).value : AI_TEMPLATE[k].es);
+  ai.phase = 'ready'; renderAdmin();
+}
+function publishAI(){
+  const ai = state.ai;
+  AI_FIELDS.forEach(([k]) => { const ta = $('#aiF_' + k); if (ta) ai.fields[k] = ta.value; });
+  const sp = clone(AI_TEMPLATE);
+  AI_FIELDS.forEach(([k]) => sp[k].es = ai.fields[k]);
+  sp.tank = ai.tank; sp.active = true;
+  ai.phase = 'published';
+  state.stats.morena = state.stats.morena || 0;
+  mutate(db => db.species.push(sp), `«${esc(sp.name.es)}» publicada en «${esc(tankById(ai.tank).name.es)}»`);
+}
+
+function adminSystem(){
+  const max = Math.max(...Object.values(state.stats), 1);
+  const stats = Object.entries(state.stats).sort((a, b) => b[1] - a[1]).map(([id, n]) => {
+    const s = state.db.species.find(x => x.id === id); if (!s) return '';
+    return `<div class="stat"><span>${esc(s.name.es)}</span><span class="bar"><b style="width:${n / max * 100}%"></b></span><span class="n">${n}</span></div>`;
+  }).join('');
+  return `<h3>Este tótem</h3><p class="sub">Cada tótem queda vinculado a su tanque desde aquí. En el propio tótem, una pulsación larga sobre «SEA LIFE» abre la selección de tanque.</p>
+    <div class="field"><label>Tanque del tótem que ves en pantalla</label><select id="sysTank" data-aset="tank">${TANKS.map(t => `<option value="${t.id}" ${t.id === state.tank ? 'selected' : ''}>${esc(t.name.es)}</option>`).join('')}</select></div>
+    <div class="field"><label>Conexión</label><label class="check" style="margin-top:4px"><span class="sw"><input type="checkbox" id="sysOffline" data-aset="offline" ${state.offline ? 'checked' : ''}><span></span></span> Simular caída del wifi en la sala</label>
+      <p class="sub" style="margin-top:6px">El tótem sigue funcionando con los datos guardados, cuenta atrás incluida, y recibe los cambios cuando vuelve la conexión.</p></div>
+    <div class="field"><label>Volver al inicio tras</label><select id="sysIdle" data-aset="idle">${[20,45,90].map(s => `<option value="${s}" ${s === state.idleSec ? 'selected' : ''}>${s} segundos sin tocar</option>`).join('')}</select></div>
+    <div class="field"><label>Avisar de las bajas a</label><input type="text" id="sysEmail" data-aset="email" value="${esc(state.email)}"></div>
+    <div class="acts" style="margin-top:14px"><button class="btn" data-aact="showSetup">Abrir selección de tanque en el tótem</button><button class="btn" data-aact="showAgenda">Mostrar el programa de hoy</button></div>
+    <div class="sect"><h3>Fichas más consultadas hoy</h3><p class="sub">Base de ejemplo; suben de verdad al tocar fichas en el tótem.</p>${stats}</div>
+    <div class="sect"><h3>Sobre esta demo</h3><div class="credits">Contenido de las fichas de ejemplo, a validar por vuestro equipo. Estado UICN según Wikidata (septiembre de 2026). Fotos de Wikimedia Commons:<br>
+      ${Object.entries(CREDITS).map(([id, c]) => `${esc((SPECIES.find(s => s.id === id) || AI_TEMPLATE).name.es)}: ${esc(c.a)} · ${esc(c.l)} · <a href="${c.u}" target="_blank" rel="noopener">fuente</a>`).join('<br>')}</div></div>`;
+}
+
+/* eventos del panel */
+document.addEventListener('click', e => {
+  const tab = e.target.closest('#tabs button');
+  if (tab){ state.tab = tab.dataset.tab; renderAdmin(); return; }
+  const a = e.target.closest('[data-aact]'); if (!a || a.tagName === 'INPUT') return;
+  const id = a.dataset.id, act = a.dataset.aact;
+  const setOv = (fn, msg, kind) => mutate(db => { const ov = db.overrides[id] || {}; fn(ov); db.overrides[id] = ov; }, msg, kind);
+  const title = () => { const r = state.db.feedings.find(r => r.id === id.split('@')[0]); return r ? r.title.es : ''; };
+  if (act === 'done') setOv(ov => { ov.status = 'done'; }, `«${esc(title())}» marcada como hecha.`);
+  else if (act === 'delay') setOv(ov => { ov.delay = (ov.delay || 0) + 15; delete ov.status; }, `«${esc(title())}» retrasada 15 minutos.`, 'warn');
+  else if (act === 'cancel') setOv(ov => { ov.status = 'cancelled'; }, `«${esc(title())}» cancelada hoy.`, 'warn');
+  else if (act === 'reset') mutate(db => { delete db.overrides[id]; }, 'Cambio deshecho.');
+  else if (act === 'baja') openBaja(id);
+  else if (act === 'closeModal') $('#modalBg').classList.remove('on');
+  else if (act === 'confirmBaja') confirmBaja(id);
+  else if (act === 'reactivate') mutate(db => {
+    const s = db.species.find(x => x.id === id);
+    (s.retired.rules || []).forEach(rid => { db.feedings.find(r => r.id === rid).suspended = false; });
+    s.retired = null; s.active = true;
+  }, 'Ficha reactivada.');
+  else if (act === 'aiTry'){ $('#aiName').value = 'Muraena helena'; }
+  else if (act === 'aiGo') runAI();
+  else if (act === 'aiTr'){ state.ai.trLang = a.dataset.l; AI_FIELDS.forEach(([k]) => { const ta = $('#aiF_' + k); if (ta) state.ai.fields[k] = ta.value; }); renderAdmin(); }
+  else if (act === 'aiPublish') publishAI();
+  else if (act === 'aiView'){ state.tank = state.ai.tank; openSpecies('morena'); setMobile('totem'); }
+  else if (act === 'aiReset'){ state.ai = {phase:'idle', name:'', tank:'mediterraneo', reviewed:false, trLang:'en'}; renderAdmin(); }
+  else if (act === 'showSetup'){ state.view = 'setup'; renderTotem(true); setMobile('totem'); }
+  else if (act === 'showAgenda'){ state.view = 'agenda'; renderTotem(true); setMobile('totem'); }
+});
+document.addEventListener('change', e => {
+  const a = e.target;
+  if (a.dataset.aact === 'toggle'){
+    const on = a.checked, s = state.db.species.find(x => x.id === a.dataset.id);
+    mutate(db => { db.species.find(x => x.id === a.dataset.id).active = on; }, `«${esc(s.name.es)}» ${on ? 'vuelve a mostrarse' : 'oculta temporalmente'} en los tótems.`);
+  }
+  if (a.dataset.aact === 'aiRev'){ state.ai.reviewed = a.checked; AI_FIELDS.forEach(([k]) => { const ta = $('#aiF_' + k); if (ta) state.ai.fields[k] = ta.value; }); renderAdmin(); }
+  const k = a.dataset.aset; if (!k) return;
+  if (k === 'tank'){ state.tank = a.value; goHome(false); toast(`Tótem vinculado a «${tankById(state.tank).name.es}»`, 'ok'); }
+  if (k === 'idle') state.idleSec = +a.value;
+  if (k === 'email') state.email = a.value.trim();
+  if (k === 'offline'){
+    if (a.checked){ state.snapshot = clone(state.db); state.snapAt = nowMs(); state.offline = true; state.pending = 0; toast('Wifi caído en la sala: el tótem sigue funcionando con lo que tenía guardado.', 'warn'); }
+    else { const n = state.pending; state.offline = false; state.snapshot = null; toast(`Conexión recuperada · ${n} ${n === 1 ? 'cambio sincronizado' : 'cambios sincronizados'}.`, 'ok'); }
+    renderTotem(false); renderAdmin();
+  }
+});
+
+/* =========================================================
+   RELOJ, TOASTS Y BUCLE
+   ========================================================= */
+function toast(html, kind){
+  const t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.innerHTML = html;
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), 4800);
+}
+document.querySelectorAll('[data-clk]').forEach(b => b.addEventListener('click', () => {
+  const c = state.clock, k = b.dataset.clk;
+  if (k === '+10' || k === '-10'){ const sp = c.real ? 1 : c.speed; setSim(nowMs() + (k === '+10' ? 1 : -1) * 600000); c.speed = sp; }
+  if (k === 'speed'){ const n = nowMs(); const sp = c.speed === 1 ? 60 : 1; setSim(n); c.speed = sp; }
+  if (k === 'real'){ if (c.real){ setSim(Date.now()); c.speed = 1; } else { c.real = true; c.speed = 1; } }
+  paintClock(); tick(true);
+}));
+function paintClock(){
+  const c = state.clock, d = new Date(nowMs());
+  $('#clockTxt').textContent = new Intl.DateTimeFormat('es-ES', {weekday:'short', day:'numeric', month:'short'}).format(d) + ' · ' + hm(d) + ':' + pad(d.getSeconds());
+  const m = $('#clockMode'); m.textContent = c.real ? 'hora real' : (c.speed > 1 ? 'simulada ×60' : 'simulada'); m.classList.toggle('real', c.real);
+  $('#speedBtn').classList.toggle('on', !c.real && c.speed > 1);
+  $('#realBtn').textContent = c.real ? 'Volver a simulada' : 'Hora real';
+}
+
+let lastAdminKey = '', firstTick = true;
+function tick(force){
+  paintClock();
+  const {list} = liveInfo();
+  for (const i of list){
+    if (i.phase === 'now' && !state.seenNow.has(i.id)){ state.seenNow.add(i.id); if (!firstTick) showTakeover(i); }
+    if (i.phase === 'upcoming') state.seenNow.delete(i.id);
+  }
+  firstTick = false;
+  if (state.takeoverUntil && performance.now() > state.takeoverUntil) hideTakeover();
+  const k = liveKey();
+  if (force || k !== lastLiveKey){ lastLiveKey = k; refreshLive(); }
+  const ms = nowMs(), ak = state.db.version + '|' + state.offline + '|' + instancesFor(state.db, ms).map(i => i.phase[0] + (i.eff - ms <= 600000 ? 's' : '')).join(',');
+  if (state.tab === 'feed' && (force || ak !== lastAdminKey)){ lastAdminKey = ak; renderAdmin(); }
+  // inactividad
+  if (state.view !== 'home'){
+    const idle = (performance.now() - state.lastTouch) / 1000, left = state.idleSec - idle, bar = $('#idlebar');
+    if (left <= 0){ bar.classList.remove('on'); goHome(true); }
+    else if (left <= 8){ bar.classList.add('on'); bar.innerHTML = `${T('idle')}<b style="width:${left / 8 * 100}%"></b>`; }
+    else bar.classList.remove('on');
+  } else $('#idlebar').classList.remove('on');
+}
+
+/* escalado del tótem */
+function fit(){
+  const wrap = $('#deviceWrap'), bez = 14;
+  const aw = wrap.clientWidth - 40 - bez * 2, ah = wrap.clientHeight - 40 - bez * 2 - 20;
+  const s = Math.max(.1, Math.min(aw / 1080, ah / 1920));
+  $('#clip').style.width = 1080 * s + 'px'; $('#clip').style.height = 1920 * s + 'px';
+  $('#screen').style.transform = `scale(${s})`;
+}
+window.addEventListener('resize', fit);
+
+/* móvil y modo solo tótem */
+function setMobile(m){ document.body.dataset.m = m; document.querySelectorAll('.mswitch button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); fit(); }
+document.querySelectorAll('.mswitch button').forEach(b => b.addEventListener('click', () => setMobile(b.dataset.m)));
+function solo(on){ document.body.classList.toggle('solo', on); fit(); }
+$('#soloBtn').addEventListener('click', () => solo(true));
+$('#exitSolo').addEventListener('click', () => solo(false));
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ solo(false); $('#modalBg').classList.remove('on'); } });
+
+renderTotem(true); renderAdmin(); fit(); tick(true);
+setInterval(tick, 250);
+</script>
+</body>
+</html>
