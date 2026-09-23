@@ -24,13 +24,13 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 html{box-sizing:border-box}
-body{background:var(--desk);color:var(--ink);font-family:var(--fb);font-size:14px;overflow:hidden;display:flex;flex-direction:column;height:100%}
+body{background:radial-gradient(1100px 760px at 34% 42%,#eff3f7 0%,#e8edf2 55%,#e1e7ed 100%) fixed;color:var(--ink);font-family:var(--fb);font-size:14px;overflow:hidden;display:flex;flex-direction:column;height:100%}
 button{font-family:inherit}
 button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #0b7f8a;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition:none!important}}
 
 /* ---------- barra superior ---------- */
-.topbar{display:flex;align-items:center;gap:18px;padding:10px 22px;background:var(--desk);border-bottom:1px solid var(--line);flex-wrap:wrap;color:var(--ink)}
+.topbar{display:flex;align-items:center;gap:18px;padding:10px 22px;background:transparent;border-bottom:1px solid var(--line);flex-wrap:wrap;color:var(--ink)}
 .who{display:flex;align-items:baseline;gap:12px;white-space:nowrap}
 .who .mark{font-family:var(--fd);font-weight:700;font-size:21px;letter-spacing:.01em}
 .who .for{color:var(--muted);font-size:13.5px;padding-left:12px;border-left:1px solid var(--line2)}
@@ -54,7 +54,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .device{position:relative;background:#0a0f16;border-radius:30px;padding:14px;box-shadow:0 30px 60px rgba(10,20,40,.35),inset 0 0 0 2px #1f2a37}
 .device::after{content:"DEMO · p4Solutions";position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);width:34%;min-width:130px;height:26px;background:linear-gradient(#1b2430,#0a0f16);border-radius:0 0 10px 10px;color:#7d8da0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;display:flex;align-items:center;justify-content:center;white-space:nowrap}
 .clip{position:relative;overflow:hidden;border-radius:16px;background:#03182c}
-.admin{background:var(--c-bg);color:var(--c-text);overflow:auto;min-height:0}
+.admin{background:var(--c-bg);color:var(--c-text);overflow:auto;min-height:0;margin:16px 18px 18px 0;border-radius:18px;border:1px solid #d6dee6;box-shadow:0 1px 2px rgba(15,27,42,.05),0 16px 40px rgba(15,27,42,.10)}
 body.solo .stage{grid-template-columns:1fr}
 body.solo .admin{display:none}
 .exit-solo{display:none;position:fixed;top:12px;right:12px;z-index:300;background:#fff;border:1px solid var(--line2);border-radius:5px;padding:7px 12px;font-size:12.5px;color:var(--ink);cursor:pointer}
@@ -65,10 +65,18 @@ body.solo .topbar{display:none}
   body{overflow:auto;height:auto;display:block}
   .stage{grid-template-columns:1fr}
   .device-wrap{height:calc(100vh - 150px);min-height:520px}
-  .admin{border-left:0;min-height:calc(100vh - 150px)}
+  .admin{margin:12px;min-height:calc(100vh - 180px)}
+  .con-head{padding:14px 14px 0}
+  .con-t{font-size:18px}
+  .con-st{font-size:10px}
+  .kpis div{padding:8px 7px}
+  .kpis .k{font-size:10.5px;letter-spacing:.02em}
+  .tabs{margin:8px 14px 0}
+  .tabs button{font-size:13.5px;letter-spacing:.03em}
+  .abody{padding:16px 14px 32px}
   body[data-m="panel"] .device-wrap{display:none}
   body[data-m="totem"] .admin{display:none}
-  .mswitch{display:flex;padding:10px 16px;background:var(--desk);border-bottom:1px solid var(--line)}
+  .mswitch{display:flex;padding:10px 16px;background:transparent;border-bottom:1px solid var(--line)}
   .mswitch button{flex:1;padding:9px;border:1px solid var(--line2);background:#fff;color:var(--ink);font-family:var(--fd);font-weight:600;font-size:15px;letter-spacing:.03em;text-transform:uppercase}
   .mswitch button:first-child{border-radius:5px 0 0 5px;border-right:0}
   .mswitch button:last-child{border-radius:0 5px 5px 0}
@@ -254,8 +262,8 @@ body.solo .topbar{display:none}
 /* =========================================================
    PANEL DE GESTIÓN
    ========================================================= */
-/* panel sobre la misma mesa gris que el resto de la página */
-:root{--c-bg:var(--desk);--c-surf:rgba(255,255,255,.6);--c-raise:#fff;--c-line:#d5dde6;--c-line2:#bfcad6;--c-text:#0f1b2a;--c-muted:#5b6b7d;--c-dim:#8a98a7;--c-acc:#0b7f8a;--c-ok:#15803d;--c-warn:#b45309;--c-bad:#b91c1c}
+/* panel: tarjeta clara que descansa sobre la mesa, como el tótem */
+:root{--c-bg:#fbfcfd;--c-surf:#f1f4f7;--c-raise:#fff;--c-line:#e2e8ee;--c-line2:#cdd6df;--c-text:#0f1b2a;--c-muted:#5b6b7d;--c-dim:#8a98a7;--c-acc:#0b7f8a;--c-ok:#15803d;--c-warn:#b45309;--c-bad:#b91c1c}
 .con-top{position:sticky;top:0;z-index:5;background:var(--c-bg)}
 .con-head{padding:14px 20px 0}
 .con-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -317,7 +325,7 @@ body.solo .topbar{display:none}
 
 /* botones */
 .acts{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
-.btn{font-family:var(--fm);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:5px 9px;border:1px solid var(--c-line2);background:rgba(255,255,255,.7);border-radius:4px;cursor:pointer;color:var(--c-text);display:inline-flex;align-items:center;gap:5px}
+.btn{font-family:var(--fm);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:5px 9px;border:1px solid var(--c-line2);background:#fff;border-radius:4px;cursor:pointer;color:var(--c-text);display:inline-flex;align-items:center;gap:5px}
 .btn:hover{border-color:var(--c-acc);color:var(--c-acc)}
 .btn.primary{background:var(--c-text);border-color:var(--c-text);color:#fff;font-weight:500}
 .btn.primary:hover{background:#26394f;border-color:#26394f;color:#fff}
@@ -398,7 +406,7 @@ body.solo .topbar{display:none}
 /* baja */
 .modal-bg{position:fixed;inset:0;background:rgba(15,27,42,.35);display:none;align-items:center;justify-content:center;z-index:250;padding:16px}
 .modal-bg.on{display:flex}
-.modal{background:#f4f7fa;color:var(--c-text);border:1px solid var(--c-line2);border-radius:8px;width:min(470px,100%);padding:22px;box-shadow:0 24px 50px rgba(15,27,42,.22);max-height:90vh;overflow:auto}
+.modal{background:var(--c-bg);color:var(--c-text);border:1px solid var(--c-line2);border-radius:8px;width:min(470px,100%);padding:22px;box-shadow:0 24px 50px rgba(15,27,42,.22);max-height:90vh;overflow:auto}
 .modal h3{margin:0 0 4px;font-family:var(--fd);font-size:23px;font-weight:700}
 .modal .radio{display:flex;flex-direction:column;gap:7px;margin-top:6px}
 .modal .radio label{display:flex;gap:8px;align-items:center;font-family:var(--fb);font-size:13.5px;text-transform:none;letter-spacing:0;color:var(--c-text);font-weight:400}
