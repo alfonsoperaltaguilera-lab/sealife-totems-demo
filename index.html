@@ -54,7 +54,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .device{position:relative;background:#0a0f16;border-radius:30px;padding:14px;box-shadow:0 30px 60px rgba(10,20,40,.35),inset 0 0 0 2px #1f2a37}
 .device::after{content:"DEMO · p4Solutions";position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);width:34%;min-width:130px;height:26px;background:linear-gradient(#1b2430,#0a0f16);border-radius:0 0 10px 10px;color:#7d8da0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;display:flex;align-items:center;justify-content:center;white-space:nowrap}
 .clip{position:relative;overflow:hidden;border-radius:16px;background:#03182c}
-.admin{background:#fff;border-left:1px solid var(--line);overflow:auto;min-height:0}
+.admin{background:var(--c-bg);color:var(--c-text);color-scheme:dark;border-left:1px solid #08111a;overflow:auto;min-height:0}
 body.solo .stage{grid-template-columns:1fr}
 body.solo .admin{display:none}
 .exit-solo{display:none;position:fixed;top:12px;right:12px;z-index:300;background:#fff;border:1px solid var(--line2);border-radius:5px;padding:7px 12px;font-size:12.5px;color:var(--ink);cursor:pointer}
@@ -254,97 +254,163 @@ body.solo .topbar{display:none}
 /* =========================================================
    PANEL DE GESTIÓN
    ========================================================= */
-.tabs{position:sticky;top:0;z-index:5;display:flex;background:#fff;border-bottom:1px solid var(--line)}
-.tabs button{flex:1;padding:14px 4px 12px;font-family:var(--fd);font-size:15.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer}
-.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+/* consola: fondo pizarra, turquesa del tótem como acento */
+:root{--c-bg:#0c1722;--c-surf:#111f2d;--c-raise:#162839;--c-line:#1c3043;--c-line2:#29445c;--c-text:#d9e6f2;--c-muted:#8199af;--c-dim:#5a738b;--c-acc:#45dcc8;--c-ok:#72d69a;--c-warn:#f2b24c;--c-bad:#f2837b}
+.con-top{position:sticky;top:0;z-index:5;background:var(--c-bg)}
+.con-head{padding:14px 20px 0}
+.con-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.con-t{font-family:var(--fd);font-weight:700;font-size:20px;letter-spacing:.02em}
+.con-st{display:flex;align-items:center;gap:8px;font-family:var(--fm);font-size:11px;letter-spacing:.04em;color:var(--c-muted);text-transform:uppercase;white-space:nowrap}
+.con-st b{color:var(--c-ok);font-weight:500}
+.led{width:7px;height:7px;border-radius:50%;background:var(--c-ok);box-shadow:0 0 0 3px rgba(114,214,154,.14),0 0 8px rgba(114,214,154,.55);flex:none}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);margin-top:12px;border:1px solid var(--c-line);border-radius:6px;background:var(--c-surf)}
+.kpis div{padding:8px 12px 9px;border-right:1px solid var(--c-line);min-width:0}
+.kpis div:last-child{border-right:0}
+.kpis .k{display:block;font-family:var(--fd);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--c-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpis b{display:block;font-family:var(--fm);font-weight:500;font-size:19px;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpis b.acc{color:var(--c-acc)}
+.tabs{display:flex;padding:0 10px;margin-top:8px;border-bottom:1px solid var(--c-line)}
+.tabs button{flex:1;padding:12px 4px 10px;font-family:var(--fd);font-size:15px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--c-dim);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tabs button:hover{color:var(--c-text)}
+.tabs button.on{color:var(--c-text);border-bottom-color:var(--c-acc)}
 .abody{padding:18px 20px 40px}
-.abody h3{font-family:var(--fd);font-size:22px;font-weight:700;margin:0 0 4px;letter-spacing:.01em}
-.abody .sub{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.45}
-.arow{display:grid;grid-template-columns:62px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);align-items:start}
-.arow .tm{font-family:var(--fm);font-weight:500;font-size:15px;font-variant-numeric:tabular-nums}
-.arow .tm s{display:block;font-size:11.5px;color:var(--muted);font-weight:500}
-.arow .nm{font-weight:650}
-.arow .meta{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.arow.now{background:#ecfdf8;margin:0 -20px;padding:11px 20px}
-.acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.btn{font-size:12.5px;padding:6px 10px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;color:var(--ink);font-weight:600}
-.btn:hover{background:var(--soft)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.primary:disabled{opacity:.4;cursor:not-allowed}
-.btn.danger{color:var(--bad)}
-.btn.lg{font-size:14px;padding:10px 14px}
-.badge{font-size:11px;font-weight:750;padding:2px 8px;border-radius:999px;background:#eef2f6;color:#334155;white-space:nowrap}
-.badge.now{background:#0f766e;color:#fff}
-.badge.soon{background:#fde7c4;color:#7c3a00}
-.badge.done{background:#dcfce7;color:#14532d}
-.badge.cancel{background:#fee2e2;color:#7f1d1d}
-.badge.delay{background:#fef3c7;color:#78350f}
-.dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--tc)}
-.tank-h{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 2px;font-weight:700;display:flex;align-items:center;gap:7px}
-.srow{display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
-.srow img{width:46px;height:46px;border-radius:10px;object-fit:cover}
-.srow .nm{font-weight:650}
-.srow .sc{font-size:12px;color:var(--muted);font-style:italic}
-.srow.off img{filter:grayscale(1);opacity:.5}
-.srow.off .nm{color:var(--muted)}
-.retired{font-size:11.5px;color:var(--bad);font-weight:650;margin-top:2px}
-.sw{position:relative;width:40px;height:23px;flex:none;display:inline-block}
-.sw input{opacity:0;width:0;height:0}
-.sw span{position:absolute;inset:0;background:#cbd5e1;border-radius:999px;cursor:pointer;transition:.2s}
-.sw span::before{content:"";position:absolute;left:3px;top:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.2s}
-.sw input:checked + span{background:var(--accent)}
-.sw input:checked + span::before{transform:translateX(17px)}
-.scol{display:flex;align-items:center;gap:8px}
-.note{font-size:12.5px;color:var(--muted);background:var(--soft);padding:10px 12px;border-radius:10px;line-height:1.5;margin-top:14px}
-.note b{color:var(--ink)}
-.pending{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;padding:10px 12px;border-radius:10px;font-size:12.5px;margin-bottom:12px;display:flex;gap:8px;align-items:center}
-.field{margin-top:12px}
-.field label{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
-.field input[type=text],.field select,.field textarea{width:100%;font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
-.field textarea{resize:vertical;min-height:40px;line-height:1.4}
+.abody h3{font-family:var(--fd);font-size:21px;font-weight:700;margin:0;letter-spacing:.01em}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px}
+.mono{font-family:var(--fm);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--c-muted)}
+.abody .sub,.modal .sub{font-size:13px;color:var(--c-muted);margin:0 0 14px;line-height:1.5}
+.abody .sub b{color:var(--c-text)}
+.dot{width:8px;height:8px;border-radius:2px;display:inline-block;background:var(--tc);flex:none}
+
+/* línea de tiempo de alimentaciones */
+.tlx{position:relative;margin-top:4px}
+.tlx::before{content:"";position:absolute;left:67px;top:18px;bottom:18px;width:2px;background:var(--c-line2)}
+.ev,.nowrow{position:relative;display:grid;grid-template-columns:50px 20px minmax(0,1fr);column-gap:8px}
+.ev-t{font-family:var(--fm);font-size:14px;padding-top:11px;font-variant-numeric:tabular-nums}
+.ev-t s{display:block;font-size:11px;color:var(--c-dim);margin-top:2px}
+.ev-r{position:relative}
+.ev-r i{position:absolute;left:3px;top:13px;width:14px;height:14px;border-radius:50%;background:var(--c-bg);border:2px solid var(--c-line2)}
+.ev-b{padding:10px 0 12px;border-bottom:1px solid var(--c-line)}
+.ev-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.ev-n{font-weight:700;font-size:14px;line-height:1.3}
+.tags{display:flex;gap:5px;flex:none}
+.ev-m{font-size:12px;color:var(--c-muted);margin-top:3px;display:flex;align-items:center;gap:6px}
+.st{font-family:var(--fm);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border:1px solid currentColor;border-radius:3px;white-space:nowrap;color:var(--c-muted)}
+.st.now{color:var(--c-acc)}
+.st.soon,.st.delay{color:var(--c-warn)}
+.st.done{color:var(--c-ok)}
+.st.cancel{color:var(--c-bad)}
+.st.past{color:var(--c-dim)}
+.ev.done .ev-r i{background:var(--c-ok);border-color:var(--c-ok)}
+.ev.past .ev-r i{background:var(--c-line2)}
+.ev.past .ev-n,.ev.past .ev-t,.ev.done .ev-n,.ev.done .ev-t{color:var(--c-muted)}
+.ev.cancelled .ev-r i{border-color:var(--c-bad)}
+.ev.cancelled .ev-n{text-decoration:line-through;color:var(--c-muted)}
+.ev.soon .ev-r i{border-color:var(--c-warn)}
+.ev.now .ev-r i{background:var(--c-acc);border-color:var(--c-acc);box-shadow:0 0 0 4px rgba(69,220,200,.18);animation:ledp 1.8s ease-in-out infinite}
+.ev.now .ev-n{color:var(--c-acc)}
+@keyframes ledp{50%{box-shadow:0 0 0 7px rgba(69,220,200,.05)}}
+.nowrow{align-items:center;height:28px}
+.nowrow .ev-t{padding:0;font-size:12px;color:var(--c-acc)}
+.nowrow .ev-r i{top:-5px;left:5px;width:10px;height:10px;border:0;border-radius:2px;background:var(--c-acc);transform:rotate(45deg)}
+.nl{display:flex;align-items:center;gap:8px;font-family:var(--fm);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--c-acc)}
+.nl::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--c-acc),transparent)}
+
+/* botones */
+.acts{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.btn{font-family:var(--fm);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:5px 9px;border:1px solid var(--c-line2);background:transparent;border-radius:4px;cursor:pointer;color:var(--c-text);display:inline-flex;align-items:center;gap:5px}
+.btn:hover{border-color:var(--c-acc);color:var(--c-acc)}
+.btn.primary{background:var(--c-acc);border-color:var(--c-acc);color:#05231f;font-weight:500}
+.btn.primary:hover{background:#72e8d8;color:#05231f}
+.btn.primary:disabled{opacity:.35;cursor:not-allowed}
+.btn.danger{color:var(--c-bad)}
+.btn.danger:hover{border-color:var(--c-bad);color:var(--c-bad)}
+.btn.lg{font-size:12px;padding:8px 13px}
+
+/* especies */
+.tank-h{display:flex;align-items:center;justify-content:space-between;margin:20px 0 2px;padding-bottom:6px;border-bottom:1px solid var(--c-line2)}
+.tank-h > span:first-child{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:600;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+.srow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--c-line)}
+.srow img{width:44px;height:44px;border-radius:4px;object-fit:cover;border:1px solid var(--c-line2)}
+.srow .nm{font-weight:700;font-size:14px}
+.srow .sc{font-size:12px;color:var(--c-muted);font-style:italic}
+.srow.off img{filter:grayscale(1);opacity:.45}
+.srow.off .nm{color:var(--c-muted)}
+.retired{font-family:var(--fm);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--c-bad);margin-top:3px}
+.scol{display:flex;align-items:center;gap:10px}
+.swl{font-family:var(--fm);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--c-muted);min-width:58px;text-align:right}
+.sw{position:relative;width:34px;height:18px;flex:none;display:inline-block}
+.sw input{position:absolute;opacity:0;width:0;height:0}
+.sw span{position:absolute;inset:0;background:var(--c-raise);border:1px solid var(--c-line2);border-radius:999px;cursor:pointer;transition:.2s}
+.sw span::before{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--c-dim);transition:.2s}
+.sw input:checked + span{background:rgba(69,220,200,.16);border-color:var(--c-acc)}
+.sw input:checked + span::before{transform:translateX(16px);background:var(--c-acc);box-shadow:0 0 6px rgba(69,220,200,.7)}
+.sw input:focus-visible + span{outline:2px solid var(--c-acc);outline-offset:2px}
+.log{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;font-size:12.5px;padding:8px 0;border-bottom:1px solid var(--c-line)}
+.log .t{font-family:var(--fm);font-size:12px;color:var(--c-muted);padding-top:1px}
+.log .when{color:var(--c-muted);font-size:11.5px;margin-top:2px}
+.sect{margin-top:28px;padding-top:18px;border-top:1px solid var(--c-line2)}
+
+/* formularios */
+.note{font-size:12.5px;color:var(--c-muted);background:var(--c-surf);border:1px solid var(--c-line);border-left:2px solid var(--c-line2);padding:10px 12px;border-radius:4px;line-height:1.55;margin-top:16px}
+.note b{color:var(--c-text)}
+.pending{background:rgba(242,178,76,.1);border:1px solid rgba(242,178,76,.4);color:var(--c-warn);padding:10px 12px;border-radius:4px;font-size:12.5px;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+.field{margin-top:14px}
+.field label{display:block;font-family:var(--fd);font-weight:600;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--c-muted);margin-bottom:6px}
+.field input[type=text],.field select,.field textarea{width:100%;font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--c-line2);border-radius:4px;background:var(--c-raise);color:var(--c-text)}
+.field input[type=text]:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--c-acc);box-shadow:0 0 0 3px rgba(69,220,200,.14)}
+.field textarea{resize:vertical;min-height:40px;line-height:1.45}
 .inline{display:flex;gap:8px;align-items:center}
-.try{font-size:12.5px;color:var(--muted);margin-top:8px}
-.try button{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;padding:0;font-size:12.5px;text-decoration:underline}
-.steps{list-style:none;padding:0;margin:14px 0 4px}
-.steps li{display:flex;align-items:center;gap:9px;font-size:13px;padding:5px 0;color:var(--muted)}
-.steps li i{width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e1;flex:none;display:flex;align-items:center;justify-content:center}
-.steps li.run{color:var(--ink);font-weight:600}
-.steps li.run i{border-color:var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
-.steps li.ok{color:var(--ink)}
-.steps li.ok i{background:var(--accent);border-color:var(--accent);color:#fff}
+.try{font-size:12.5px;color:var(--c-muted);margin-top:8px}
+.try button{background:none;border:none;color:var(--c-acc);cursor:pointer;padding:0;font:inherit;text-decoration:underline;text-underline-offset:3px}
+.steps{list-style:none;padding:10px 12px;margin:16px 0 4px;background:#08121b;border:1px solid var(--c-line);border-radius:4px;font-family:var(--fm);font-size:11.5px}
+.steps li{display:flex;align-items:center;gap:9px;padding:4px 0;color:var(--c-dim)}
+.steps li .ts{width:60px;flex:none}
+.steps li i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--c-line2);flex:none;display:flex;align-items:center;justify-content:center}
+.steps li.run,.steps li.ok{color:var(--c-text)}
+.steps li.ok .ts,.steps li.run .ts{color:var(--c-muted)}
+.steps li.run i{border-color:var(--c-acc);border-top-color:transparent;animation:spin .8s linear infinite}
+.steps li.ok i{background:var(--c-acc);border-color:var(--c-acc);color:#05231f}
 @keyframes spin{to{transform:rotate(360deg)}}
-.aiprev{display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:center;margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:10px}
-.aiprev img{width:90px;height:68px;object-fit:cover;border-radius:8px}
-.tr{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.tr .th{display:flex;border-bottom:1px solid var(--line)}
-.tr .th button{flex:1;border:none;background:var(--soft);padding:7px;font-size:12px;font-weight:700;cursor:pointer;color:var(--muted)}
-.tr .th button.on{background:#fff;color:var(--ink)}
-.tr .tb{padding:10px 12px;font-size:12.5px;line-height:1.5;color:#334155}
-.check{display:flex;gap:9px;align-items:center;margin-top:16px;font-weight:650;font-size:13.5px}
-.check input{width:18px;height:18px}
-.okbox{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.5}
-.stat{display:grid;grid-template-columns:130px 1fr 34px;gap:8px;align-items:center;font-size:12.5px;margin:6px 0}
-.stat .bar{height:9px;border-radius:5px;background:#eef2f6;overflow:hidden}
-.stat .bar b{display:block;height:100%;background:var(--accent)}
-.stat .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-.sect{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
-.credits{font-size:11.5px;color:var(--muted);line-height:1.6}
-.credits a{color:var(--muted)}
-.log{font-size:12.5px;padding:8px 0;border-bottom:1px dashed var(--line)}
-.log .when{color:var(--muted);font-size:11.5px}
+.aiprev{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;margin-top:12px;padding:10px;border:1px dashed var(--c-line2);border-radius:4px}
+.aiprev img{width:84px;height:62px;object-fit:cover;border-radius:3px}
+.aiprev .sub{margin:0}
+.tr{margin-top:14px;border:1px solid var(--c-line2);border-radius:4px;overflow:hidden}
+.tr .th{display:flex;border-bottom:1px solid var(--c-line2)}
+.tr .th button{flex:1;border:none;background:var(--c-surf);padding:7px;font-family:var(--fm);font-size:11px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;color:var(--c-dim)}
+.tr .th button.on{background:var(--c-raise);color:var(--c-text);box-shadow:inset 0 -2px 0 var(--c-acc)}
+.tr .tb{padding:10px 12px;font-size:12.5px;line-height:1.55;background:var(--c-raise)}
+.tr .tb span{color:var(--c-muted)}
+.check{display:flex;gap:9px;align-items:center;margin-top:16px;font-weight:700;font-size:13.5px}
+.check input{width:16px;height:16px;accent-color:var(--c-acc)}
+.okbox{background:rgba(114,214,154,.08);border:1px solid rgba(114,214,154,.4);padding:12px 14px;border-radius:4px;font-size:13.5px;line-height:1.5}
+.okbox b{color:var(--c-ok)}
 
-.modal-bg{position:fixed;inset:0;background:rgba(15,27,42,.5);display:none;align-items:center;justify-content:center;z-index:250;padding:16px}
+/* tótem */
+.dev{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--c-line2);border-radius:6px;background:var(--c-surf);margin-top:4px}
+.dev .nm{font-family:var(--fd);font-size:23px;font-weight:700;margin:2px 0 6px}
+.dev .spec{font-family:var(--fm);font-size:11px;color:var(--c-muted);text-align:right;line-height:1.8;text-transform:uppercase;letter-spacing:.04em}
+.dev .spec b{color:var(--c-text);font-weight:500}
+.stat{display:grid;grid-template-columns:140px 1fr 30px;gap:10px;align-items:center;font-size:12.5px;margin:7px 0}
+.stat .bar{height:6px;border-radius:1px;background:var(--c-raise);overflow:hidden}
+.stat .bar b{display:block;height:100%;background:linear-gradient(90deg,#2a9e91,var(--c-acc))}
+.stat .n{text-align:right;font-family:var(--fm);font-size:12px;color:var(--c-muted)}
+
+/* baja */
+.modal-bg{position:fixed;inset:0;background:rgba(4,10,16,.62);display:none;align-items:center;justify-content:center;z-index:250;padding:16px}
 .modal-bg.on{display:flex}
-.modal{background:#fff;border-radius:16px;width:min(470px,100%);padding:22px;box-shadow:0 30px 60px rgba(0,0,0,.3);max-height:90vh;overflow:auto}
-.modal h3{margin:0 0 4px;font-size:18px}
-.modal .radio{display:flex;flex-direction:column;gap:6px;margin-top:6px}
-.modal .radio label{display:flex;gap:8px;align-items:center;font-size:13.5px;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:500}
-.modal .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.modal{background:var(--c-surf);color:var(--c-text);color-scheme:dark;border:1px solid var(--c-line2);border-radius:8px;width:min(470px,100%);padding:22px;box-shadow:0 30px 60px rgba(0,0,0,.45);max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 4px;font-family:var(--fd);font-size:23px;font-weight:700}
+.modal .radio{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+.modal .radio label{display:flex;gap:8px;align-items:center;font-family:var(--fb);font-size:13.5px;text-transform:none;letter-spacing:0;color:var(--c-text);font-weight:400}
+.modal input[type=radio]{accent-color:var(--c-acc)}
+.modal .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
 
+/* avisos */
 .toasts{position:fixed;right:18px;bottom:18px;z-index:260;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-.toast{background:#0f1b2a;color:#fff;padding:11px 14px;border-radius:12px;font-size:13px;max-width:380px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:tin .3s ease both;line-height:1.45}
-.toast.ok{border-left:4px solid #22c55e}
-.toast.warn{border-left:4px solid #f59e0b}
+.toast{position:relative;background:var(--c-bg);color:var(--c-text);border:1px solid var(--c-line2);padding:11px 14px 11px 30px;border-radius:6px;font-size:13px;max-width:380px;box-shadow:0 12px 30px rgba(0,0,0,.35);animation:tin .3s ease both;line-height:1.45}
+.toast::before{content:"";position:absolute;left:13px;top:17px;width:7px;height:7px;border-radius:50%;background:var(--c-acc);box-shadow:0 0 8px var(--c-acc)}
+.toast.ok::before{background:var(--c-ok);box-shadow:0 0 8px var(--c-ok)}
+.toast.warn::before{background:var(--c-warn);box-shadow:0 0 8px var(--c-warn)}
 @keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 </head>
@@ -378,11 +444,14 @@ body.solo .topbar{display:none}
     </div></div>
   </div>
   <aside class="admin">
+    <div class="con-top">
+    <div class="con-head" id="conHead"></div>
     <div class="tabs" id="tabs">
       <button data-tab="feed" class="on">Alimentaciones</button>
       <button data-tab="species">Especies</button>
-      <button data-tab="ai">Nueva ficha · IA</button>
+      <button data-tab="ai">Ficha con IA</button>
       <button data-tab="system">Tótem</button>
+    </div>
     </div>
     <div class="abody" id="adminBody"></div>
   </aside>
@@ -868,59 +937,83 @@ function mutate(fn, msg, kind){
 
 function renderAdmin(){
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === state.tab));
+  renderConHead();
   const el = $('#adminBody');
   el.innerHTML = (state.offline ? `<div class="pending">${svg('wifiOff', 18)} Tótem sin conexión · ${state.pending} ${state.pending === 1 ? 'cambio pendiente' : 'cambios pendientes'} de enviar</div>` : '')
     + (state.tab === 'feed' ? adminFeed() : state.tab === 'species' ? adminSpecies() : state.tab === 'ai' ? adminAI() : adminSystem());
 }
 
+function renderConHead(){
+  const list = instancesFor(state.db, nowMs());
+  const done = list.filter(i => i.phase === 'done' || i.phase === 'past').length;
+  const pend = list.filter(i => i.phase === 'upcoming' || i.phase === 'now').length;
+  const now = list.find(i => i.phase === 'now'), next = list.find(i => i.phase === 'upcoming');
+  $('#conHead').innerHTML = `<div class="con-row"><span class="con-t">Consola de operaciones</span>
+      <span class="con-st"><span class="led"></span>Tótem 01 · <b>en línea</b></span></div>
+    <div class="kpis">
+      <div><span class="k">Hoy</span><b>${list.length}</b></div>
+      <div><span class="k">Hechas</span><b>${done}</b></div>
+      <div><span class="k">Pendientes</span><b>${pend}</b></div>
+      <div><span class="k">${now ? 'En curso' : 'Próxima'}</span><b class="acc">${now ? hm(now.eff) : next ? hm(next.eff) : '—'}</b></div>
+    </div>`;
+}
+
 function adminFeed(){
   const ms = nowMs(), list = instancesFor(state.db, ms);
   const firstUp = (list.find(i => i.phase === 'upcoming') || {}).id;
-  const date = new Intl.DateTimeFormat('es-ES', {weekday:'long', day:'numeric', month:'long'}).format(new Date(ms));
-  const rows = list.map(i => {
-    const tank = i.rule.tank ? tankById(i.rule.tank) : null, mins = Math.ceil((i.eff - ms) / 60000);
-    const ov = state.db.overrides[i.id];
-    let badge = '';
-    if (i.phase === 'now') badge = '<span class="badge now">En curso</span>';
-    else if (i.phase === 'done') badge = '<span class="badge done">Hecha</span>';
-    else if (i.phase === 'cancelled') badge = '<span class="badge cancel">Cancelada</span>';
-    else if (i.phase === 'past') badge = '<span class="badge">Pasada</span>';
-    else badge = `<span class="badge ${mins <= 10 ? 'soon' : ''}">${i.id === firstUp ? 'Próxima' : 'Pendiente'}</span>`;
-    if (i.delay) badge += ` <span class="badge delay">+${i.delay} min</span>`;
+  const date = new Intl.DateTimeFormat('es-ES', {weekday:'short', day:'numeric', month:'short'}).format(new Date(ms));
+  const nowRow = `<div class="nowrow"><span class="ev-t" id="nowTime">${hm(ms)}</span><span class="ev-r"><i></i></span><span class="nl">Ahora</span></div>`;
+  let rows = '', marked = false;
+  for (const i of list){
+    if (!marked && (i.phase === 'upcoming' || i.phase === 'now')){ rows += nowRow; marked = true; }
+    const tank = i.rule.tank ? tankById(i.rule.tank) : null, ov = state.db.overrides[i.id];
+    const soon = i.phase === 'upcoming' && i.eff - ms <= 600000;
+    const st = i.phase === 'now' ? ['now', 'En curso'] : i.phase === 'done' ? ['done', 'Hecha'] : i.phase === 'cancelled' ? ['cancel', 'Cancelada']
+      : i.phase === 'past' ? ['past', 'Pasada'] : [soon ? 'soon' : '', i.id === firstUp ? 'Próxima' : 'Pendiente'];
     const canAct = i.phase === 'upcoming' || i.phase === 'now';
-    return `<div class="arow ${i.phase === 'now' ? 'now' : ''}">
-      <div class="tm">${hm(i.eff)}${i.delay ? `<s>${i.time}</s>` : ''}</div>
-      <div><div class="nm">${esc(i.rule.title.es)}</div>
-        <div class="meta">${tank ? `<span class="dot" style="--tc:${tank.color}"></span>${esc(tank.name.es)}` : 'Varios puntos'} · ${badge}</div>
-        <div class="acts">
-          ${canAct ? `<button class="btn" data-aact="done" data-id="${i.id}">${svg('check', 13, 3)} Hecha</button>
+    rows += `<div class="ev ${i.phase} ${soon ? 'soon' : ''}">
+      <div class="ev-t">${hm(i.eff)}${i.delay ? `<s>${i.time}</s>` : ''}</div>
+      <div class="ev-r"><i></i></div>
+      <div class="ev-b">
+        <div class="ev-top"><span class="ev-n">${esc(i.rule.title.es)}</span><span class="tags">${i.delay ? `<span class="st delay">+${i.delay} min</span>` : ''}<span class="st ${st[0]}">${st[1]}</span></span></div>
+        <div class="ev-m">${tank ? `<span class="dot" style="--tc:${tank.color}"></span>${esc(tank.name.es)}` : 'Varios puntos'}</div>
+        ${canAct || ov ? `<div class="acts">
+          ${canAct ? `<button class="btn" data-aact="done" data-id="${i.id}">${svg('check', 12, 3)} Hecha</button>
           <button class="btn" data-aact="delay" data-id="${i.id}">+15 min</button>
           <button class="btn danger" data-aact="cancel" data-id="${i.id}">Cancelar</button>` : ''}
           ${ov ? `<button class="btn" data-aact="reset" data-id="${i.id}">Deshacer</button>` : ''}
-        </div></div></div>`;
-  }).join('');
-  return `<h3>Alimentaciones de hoy</h3><p class="sub" style="text-transform:none">${date[0].toUpperCase() + date.slice(1)}. El cuidador la marca desde el móvil y <b>todos los tótems</b> muestran al momento la cuenta atrás, el retraso o la cancelación.</p>
-    ${rows || '<p class="sub">Hoy no hay alimentaciones programadas.</p>'}
+        </div>` : ''}
+      </div></div>`;
+  }
+  if (list.length && !marked) rows += nowRow;
+  return `<div class="sec-h"><h3>Alimentaciones de hoy</h3><span class="mono">${date}</span></div>
+    <p class="sub">El cuidador la marca desde el móvil y <b>todos los tótems</b> muestran al momento la cuenta atrás, el retraso o la cancelación.</p>
+    ${list.length ? `<div class="tlx">${rows}</div>` : '<p class="sub">Hoy no hay alimentaciones programadas.</p>'}
     <div class="note">Horarios tomados de vuestra web (22-09-2026), con sus días de la semana. La charla de rayas no tiene hora publicada: aquí va a las 16:00 como ejemplo.<br><b>Para verlo en marcha:</b> pulsa «+10 min» o «×60» arriba (con ×60, un segundo es un minuto).</div>`;
 }
 
 function adminSpecies(){
-  let h = '<h3>Fichas de especies</h3><p class="sub">El interruptor oculta una ficha temporalmente (enfermedad, cuarentena…). La <b>baja</b> la retira, la deja registrada y avisa sola a quien haga falta.</p>';
+  const onTotem = state.db.species.filter(s => s.active).length;
+  let h = `<div class="sec-h"><h3>Fichas de especies</h3><span class="mono">${onTotem} en tótems</span></div>
+    <p class="sub">El interruptor oculta una ficha temporalmente (enfermedad, cuarentena…). La <b>baja</b> la retira, la deja registrada y avisa sola a quien haga falta.</p>`;
   for (const t of TANKS){
     const sp = state.db.species.filter(s => s.tank === t.id);
     if (!sp.length) continue;
-    h += `<div class="tank-h"><span class="dot" style="--tc:${t.color}"></span>${esc(t.name.es)}</div>`;
+    h += `<div class="tank-h"><span><span class="dot" style="--tc:${t.color}"></span>${esc(t.name.es)}</span><span class="mono">${sp.length} ${sp.length === 1 ? 'ficha' : 'fichas'}</span></div>`;
     h += sp.map(s => `<div class="srow ${s.active ? '' : 'off'}">
       <img src="${IMG + s.img}" alt="">
       <div><div class="nm">${esc(s.name.es)}</div><div class="sc">${esc(s.sci)}</div>
         ${s.retired ? `<div class="retired">Baja · ${esc(s.retired.reason)} · ${s.retired.at}</div>` : ''}</div>
       <div class="scol">${s.retired
         ? `<button class="btn" data-aact="reactivate" data-id="${s.id}">Reactivar</button><button class="btn danger" data-aact="delete" data-id="${s.id}">Eliminar</button>`
-        : `<label class="sw" title="Visible en los tótems"><input type="checkbox" data-aact="toggle" data-id="${s.id}" ${s.active ? 'checked' : ''}><span></span></label>
+        : `<span class="swl">${s.active ? 'En tótem' : 'Oculta'}</span>
+           <label class="sw" title="Visible en los tótems"><input type="checkbox" data-aact="toggle" data-id="${s.id}" ${s.active ? 'checked' : ''}><span></span></label>
            <button class="btn danger" data-aact="baja" data-id="${s.id}">Baja</button>`}</div>
     </div>`).join('');
   }
-  h += `<div class="sect"><h3>Registro de bajas</h3>${state.db.bajas.length ? state.db.bajas.map(b => `<div class="log"><b>${esc(b.name)}</b> · ${esc(b.reason)}<div class="when">${b.at} · ${b.notified ? 'aviso enviado a ' + esc(b.notified) : 'sin aviso'}${b.note ? ' · ' + esc(b.note) : ''}</div></div>`).join('') : '<p class="sub">Todavía no hay bajas registradas.</p>'}</div>`;
+  h += `<div class="sect"><div class="sec-h"><h3>Registro de bajas</h3><span class="mono">${state.db.bajas.length}</span></div>${state.db.bajas.length
+    ? state.db.bajas.map(b => `<div class="log"><span class="t">${b.at}</span><div><b>${esc(b.name)}</b> · ${esc(b.reason)}<div class="when">${b.notified ? 'Aviso enviado a ' + esc(b.notified) : 'Sin aviso'}${b.note ? ' · ' + esc(b.note) : ''}</div></div></div>`).join('')
+    : '<p class="sub">Todavía no hay bajas registradas.</p>'}</div>`;
   return h;
 }
 
@@ -956,7 +1049,7 @@ const AI_FIELDS = [['name','Nombre común',1],['fact','Dato curioso',3],['habita
 function adminAI(){
   const ai = state.ai;
   const tankOpts = TANKS.map(t => `<option value="${t.id}" ${ai.tank === t.id ? 'selected' : ''}>${esc(t.name.es)}</option>`).join('');
-  let h = `<h3>Nueva ficha con IA</h3><p class="sub">Escribe el nombre científico. La IA redacta la ficha, consulta el estado de conservación y la traduce. <b>Un acuarista la revisa antes de publicarla</b>: nada sale sin supervisión.</p>
+  let h = `<div class="sec-h"><h3>Nueva ficha con IA</h3><span class="mono">Revisión humana</span></div><p class="sub">Escribe el nombre científico. La IA redacta la ficha, consulta el estado de conservación y la traduce. <b>Un acuarista la revisa antes de publicarla</b>: nada sale sin supervisión.</p>
     <div class="field"><label>Nombre científico</label><div class="inline"><input type="text" id="aiName" value="${esc(ai.name)}" placeholder="Ej.: Muraena helena" ${ai.phase === 'running' ? 'disabled' : ''}>
       <button class="btn primary lg" data-aact="aiGo" ${ai.phase === 'running' ? 'disabled' : ''}>Generar</button></div>
       <div class="try">Prueba con <button data-aact="aiTry">Muraena helena</button> (morena mediterránea)</div></div>
@@ -964,13 +1057,13 @@ function adminAI(){
   if (ai.phase === 'unknown') h += `<div class="note">En esta demo el borrador está preparado solo para <b>Muraena helena</b>. En el sistema real funciona con cualquier especie.</div>`;
   if (ai.phase === 'running' || ai.phase === 'ready'){
     const st = ['Identificando la especie','Consultando el estado de conservación (UICN)','Redactando la ficha en español','Traduciendo a inglés y alemán'];
-    h += `<ul class="steps">${st.map((s, i) => `<li id="aiStep${i}" class="${ai.phase === 'ready' ? 'ok' : ''}"><i>${ai.phase === 'ready' ? svg('check', 11, 3.5) : ''}</i>${s}</li>`).join('')}</ul>
+    h += `<ul class="steps">${st.map((s, i) => `<li id="aiStep${i}" class="${ai.phase === 'ready' ? 'ok' : ''}"><span class="ts" id="aiTs${i}">${(ai.ts && ai.ts[i]) || '--:--:--'}</span><i>${ai.phase === 'ready' ? svg('check', 10, 3.5) : ''}</i>${s}</li>`).join('')}</ul>
       <div class="aiprev"><img src="${IMG + AI_TEMPLATE.img}" alt=""><div class="sub" style="margin:0">Foto de ejemplo. En el sistema real subís la vuestra desde el móvil.<br><b>UICN:</b> <span id="aiIucn">${ai.phase === 'ready' ? 'Preocupación menor (LC)' : '…'}</span></div></div>
       ${AI_FIELDS.map(([k, lbl, rows]) => `<div class="field"><label>${lbl}</label><textarea id="aiF_${k}" rows="${rows}">${ai.phase === 'ready' ? esc(ai.fields[k]) : ''}</textarea></div>`).join('')}`;
     if (ai.phase === 'ready'){
       const t = AI_TEMPLATE, l = ai.trLang;
       h += `<div class="tr"><div class="th"><button data-aact="aiTr" data-l="en" class="${l === 'en' ? 'on' : ''}">English</button><button data-aact="aiTr" data-l="de" class="${l === 'de' ? 'on' : ''}">Deutsch</button></div>
-        <div class="tb"><b>${esc(t.name[l])}</b><br>${esc(t.fact[l])}<br><span style="color:var(--muted)">${esc(t.habitat[l])} · ${esc(t.diet[l])} · ${esc(t.size[l])}</span></div></div>
+        <div class="tb"><b>${esc(t.name[l])}</b><br>${esc(t.fact[l])}<br><span>${esc(t.habitat[l])} · ${esc(t.diet[l])} · ${esc(t.size[l])}</span></div></div>
         <label class="check"><input type="checkbox" data-aact="aiRev" ${ai.reviewed ? 'checked' : ''}> Revisado por un acuarista</label>
         <div style="margin-top:12px"><button class="btn primary lg" data-aact="aiPublish" ${ai.reviewed ? '' : 'disabled'}>Publicar en los tótems</button></div>`;
     }
@@ -989,8 +1082,13 @@ async function runAI(){
   const prev = state.db.species.find(s => s.id === 'morena');
   if (prev && prev.active){ toast('La morena ya está en los tótems. Dala de baja o elimínala en «Especies» para volver a generarla.', 'warn'); return; }
   if (prev) state.db.species = state.db.species.filter(s => s.id !== 'morena');
-  ai.phase = 'running'; ai.reviewed = false; ai.fields = {}; renderAdmin();
-  const step = (i, cls) => { const el = $('#aiStep' + i); if (el){ el.className = cls; if (cls === 'ok') el.querySelector('i').innerHTML = svg('check', 11, 3.5); } };
+  ai.phase = 'running'; ai.reviewed = false; ai.fields = {}; ai.ts = []; renderAdmin();
+  const step = (i, cls) => {
+    const el = $('#aiStep' + i); if (!el) return;
+    el.className = cls;
+    if (cls === 'run'){ const d = new Date(nowMs()); ai.ts[i] = hm(d) + ':' + pad(d.getSeconds()); $('#aiTs' + i).textContent = ai.ts[i]; }
+    if (cls === 'ok') el.querySelector('i').innerHTML = svg('check', 10, 3.5);
+  };
   step(0, 'run'); await sleep(900); step(0, 'ok');
   step(1, 'run'); await sleep(900); step(1, 'ok'); $('#aiIucn').textContent = 'Preocupación menor (LC)';
   step(2, 'run');
@@ -1020,12 +1118,16 @@ function adminSystem(){
     const s = state.db.species.find(x => x.id === id); if (!s) return '';
     return `<div class="stat"><span>${esc(s.name.es)}</span><span class="bar"><b style="width:${n / max * 100}%"></b></span><span class="n">${n}</span></div>`;
   }).join('');
-  return `<h3>Este tótem</h3><p class="sub">Cada tótem queda vinculado a su tanque desde aquí. En el propio tótem, una pulsación larga sobre «SEA LIFE» abre la selección de tanque.</p>
+  const active = state.db.species.filter(s => s.tank === state.tank && s.active).length;
+  return `<div class="sec-h"><h3>Este tótem</h3><span class="mono">Tótem 01</span></div>
+    <p class="sub">Cada tótem queda vinculado a su tanque desde aquí. En el propio tótem, una pulsación larga sobre «SEA LIFE» abre la selección de tanque.</p>
+    <div class="dev"><div><span class="mono">Ubicación</span><div class="nm">${esc(tankById(state.tank).name.es)}</div><span class="con-st"><span class="led"></span><b>en línea</b></span></div>
+      <div class="spec">Idioma <b>ES</b><br>Inactividad <b>${state.idleSec} s</b><br>Fichas <b>${active}</b></div></div>
     <div class="field"><label>Tanque del tótem que ves en pantalla</label><select id="sysTank" data-aset="tank">${TANKS.map(t => `<option value="${t.id}" ${t.id === state.tank ? 'selected' : ''}>${esc(t.name.es)}</option>`).join('')}</select></div>
     <div class="field"><label>Volver al inicio tras</label><select id="sysIdle" data-aset="idle">${[20,45,90].map(s => `<option value="${s}" ${s === state.idleSec ? 'selected' : ''}>${s} segundos sin tocar</option>`).join('')}</select></div>
     <div class="field"><label>Avisar de las bajas a</label><input type="text" id="sysEmail" data-aset="email" value="${esc(state.email)}"></div>
-    <div class="acts" style="margin-top:14px"><button class="btn" data-aact="showSetup">Abrir selección de tanque en el tótem</button><button class="btn" data-aact="showAgenda">Mostrar el programa de hoy</button></div>
-    <div class="sect"><h3>Fichas más consultadas hoy</h3><p class="sub">Base de ejemplo; suben de verdad al tocar fichas en el tótem.</p>${stats}</div>`;
+    <div class="acts" style="margin-top:14px"><button class="btn" data-aact="showSetup">Selección de tanque en el tótem</button><button class="btn" data-aact="showAgenda">Programa de hoy</button></div>
+    <div class="sect"><div class="sec-h"><h3>Fichas más consultadas hoy</h3><span class="mono">Toques</span></div><p class="sub">Base de ejemplo; suben de verdad al tocar fichas en el tótem.</p>${stats}</div>`;
 }
 
 /* eventos del panel */
@@ -1069,8 +1171,8 @@ document.addEventListener('change', e => {
   }
   if (a.dataset.aact === 'aiRev'){ state.ai.reviewed = a.checked; AI_FIELDS.forEach(([k]) => { const ta = $('#aiF_' + k); if (ta) state.ai.fields[k] = ta.value; }); renderAdmin(); }
   const k = a.dataset.aset; if (!k) return;
-  if (k === 'tank'){ state.tank = a.value; goHome(false); toast(`Tótem vinculado a «${tankById(state.tank).name.es}»`, 'ok'); }
-  if (k === 'idle') state.idleSec = +a.value;
+  if (k === 'tank'){ state.tank = a.value; goHome(false); renderAdmin(); toast(`Tótem vinculado a «${tankById(state.tank).name.es}»`, 'ok'); }
+  if (k === 'idle'){ state.idleSec = +a.value; renderAdmin(); }
   if (k === 'email') state.email = a.value.trim();
   if (k === 'offline'){
     if (a.checked){ state.snapshot = clone(state.db); state.snapAt = nowMs(); state.offline = true; state.pending = 0; toast('Wifi caído en la sala: el tótem sigue funcionando con lo que tenía guardado.', 'warn'); }
@@ -1115,7 +1217,8 @@ function tick(force){
   const k = liveKey();
   if (force || k !== lastLiveKey){ lastLiveKey = k; refreshLive(); }
   const ms = nowMs(), ak = state.db.version + '|' + state.offline + '|' + instancesFor(state.db, ms).map(i => i.phase[0] + (i.eff - ms <= 600000 ? 's' : '')).join(',');
-  if (state.tab === 'feed' && (force || ak !== lastAdminKey)){ lastAdminKey = ak; renderAdmin(); }
+  if (force || ak !== lastAdminKey){ lastAdminKey = ak; if (state.tab === 'feed') renderAdmin(); else renderConHead(); }
+  const nt = $('#nowTime'); if (nt) nt.textContent = hm(ms);
   // inactividad
   if (state.view !== 'home'){
     const idle = (performance.now() - state.lastTouch) / 1000, left = state.idleSec - idle, bar = $('#idlebar');
