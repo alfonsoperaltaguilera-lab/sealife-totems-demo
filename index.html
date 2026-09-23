@@ -183,10 +183,10 @@ body.solo .topbar{display:none}
 .duo{margin-top:22px;display:grid;grid-template-columns:1.15fr 1fr;gap:24px}
 .box{border-radius:26px;background:rgba(255,255,255,.07);padding:22px 26px}
 .box .k{font-size:21px;text-transform:uppercase;letter-spacing:.12em;opacity:.65;font-weight:700}
-.rl{position:relative;display:flex;justify-content:space-between;align-items:center;margin-top:20px;height:64px}
+.rl{position:relative;display:flex;justify-content:space-between;align-items:center;margin-top:18px;height:52px}
 .rl::before{content:"";position:absolute;left:20px;right:20px;top:50%;height:2px;background:rgba(255,255,255,.28)}
 .rl span{position:relative;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:#063055;color:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
-.rl span.on{width:64px;height:64px;border:3px solid #fff;background:var(--c);color:var(--f);font-size:22px;font-weight:800}
+.rl span.on{width:60px;height:60px;border:3px solid #fff;background:var(--c);color:var(--f);font-size:22px;font-weight:800}
 .rl.ne span{opacity:.5}
 .iucn-name{font-size:31px;font-weight:800;margin-top:18px}
 .feed-line{margin-top:12px}
@@ -207,8 +207,10 @@ body.solo .topbar{display:none}
 .ag-head h1{font-size:92px;margin:16px 0 8px;font-weight:800;line-height:1}
 .ag-head .date{font-size:34px;opacity:.8}
 .ag-head .date::first-letter{text-transform:uppercase}
-.tl{margin-top:32px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;overflow:hidden}
-.ti{display:grid;grid-template-columns:150px 1fr auto;align-items:center;gap:26px;padding:13px 28px;border-radius:24px;background:rgba(255,255,255,.07);border:2px solid transparent}
+.tl{margin-top:40px;display:flex;flex-direction:column;gap:14px;flex:1;min-height:0}
+.tl.compact{margin-top:32px;gap:10px;overflow:hidden}
+.tl.compact .ti{padding:13px 28px}
+.ti{display:grid;grid-template-columns:150px 1fr auto;align-items:center;gap:26px;padding:20px 28px;border-radius:24px;background:rgba(255,255,255,.07);border:2px solid transparent}
 .ti .t{font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
 .ti .t s{display:block;font-size:22px;opacity:.6;font-weight:600;margin-top:4px}
 .ti .tt{font-size:33px;font-weight:700;line-height:1.15}
@@ -783,7 +785,14 @@ function renderTotem(anim){
   v.innerHTML = state.view === 'home' ? homeHTML() : state.view === 'species' ? speciesHTML() : state.view === 'agenda' ? agendaHTML() : setupHTML();
   if (anim){ v.classList.remove('anim'); void v.offsetWidth; v.classList.add('anim'); state.lastTouch = performance.now(); }
   updateOffline();
+  fitAgenda();
   lastLiveKey = liveKey();
+}
+function fitAgenda(){
+  const tl = $('#tl'); if (!tl) return;
+  tl.classList.remove('compact');
+  // solo si la última fila quedaría tapada por el botón (hay 24 px de margen hasta él)
+  if (tl.scrollHeight - tl.clientHeight > 24) tl.classList.add('compact');
 }
 function liveKey(){
   const {ms, list, now, next} = liveInfo(), it = now || next;
@@ -792,7 +801,7 @@ function liveKey(){
 }
 function refreshLive(){
   document.querySelectorAll('.live-slot').forEach(el => el.innerHTML = liveHTML(el.dataset.kind));
-  const tl = $('#tl'); if (tl) tl.innerHTML = agendaListHTML();
+  const tl = $('#tl'); if (tl){ tl.innerHTML = agendaListHTML(); fitAgenda(); }
   if (state.view === 'species'){ const box = document.querySelectorAll('.duo .box')[1]; const s = visibleSpecies().find(x => x.id === state.spId); if (box && s) box.innerHTML = feedBoxHTML(s); }
 }
 function updateOffline(){
