@@ -66,14 +66,6 @@ body.solo .topbar{display:none}
   .stage{grid-template-columns:1fr}
   .device-wrap{height:calc(100vh - 150px);min-height:520px}
   .admin{margin:12px;min-height:calc(100vh - 180px)}
-  .con-head{padding:14px 14px 0}
-  .con-t{font-size:18px}
-  .con-st{font-size:10px}
-  .kpis div{padding:8px 7px}
-  .kpis .k{font-size:10.5px;letter-spacing:.02em}
-  .tabs{margin:8px 14px 0}
-  .tabs button{font-size:13.5px;letter-spacing:.03em}
-  .abody{padding:16px 14px 32px}
   body[data-m="panel"] .device-wrap{display:none}
   body[data-m="totem"] .admin{display:none}
   .mswitch{display:flex;padding:10px 16px;background:transparent;border-bottom:1px solid var(--line)}
@@ -420,6 +412,17 @@ body.solo .topbar{display:none}
 .toast.ok::before{background:var(--c-ok)}
 .toast.warn::before{background:var(--c-warn)}
 @keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* panel en móvil: va después de sus estilos para poder ajustarlos */
+@media (max-width:980px){
+  .con-head{padding:14px 14px 0}
+  .con-t{font-size:19px}
+  .con-st .hid-m{display:none}
+  .kpis div{padding:8px 7px}
+  .kpis .k{font-size:10.5px;letter-spacing:.02em}
+  .tabs{margin:8px 14px 0}
+  .tabs button{flex:auto;padding:12px 3px 10px;font-size:13.5px;letter-spacing:.03em;white-space:nowrap}
+  .abody{padding:16px 14px 32px}
+}
 </style>
 </head>
 <body data-m="totem">
@@ -957,7 +960,7 @@ function renderConHead(){
   const pend = list.filter(i => i.phase === 'upcoming' || i.phase === 'now').length;
   const now = list.find(i => i.phase === 'now'), next = list.find(i => i.phase === 'upcoming');
   $('#conHead').innerHTML = `<div class="con-row"><span class="con-t">Consola de operaciones</span>
-      <span class="con-st"><span class="led"></span>Tótem 01 · <b>en línea</b></span></div>
+      <span class="con-st"><span class="led"></span><span class="hid-m">Tótem 01 · </span><b>en línea</b></span></div>
     <div class="kpis">
       <div><span class="k">Hoy</span><b>${list.length}</b></div>
       <div><span class="k">Hechas</span><b>${done}</b></div>
